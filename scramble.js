@@ -1,24 +1,26 @@
 // ── Lexicon state ────────────────────────────────────────────────────────────
-let LEXICON = [];        // simple.txt word list
+let LEXICON = [];        // common words (commonness=1 in lexicon.txt)
 let LEXICON_SET = new Set();
-let CONUNDRUMS = [];     // conundrums.txt word list
+let FULL_LEXICON = [];   // all words in lexicon.txt
+let FULL_LEXICON_SET = new Set();
+let CONUNDRUMS = [];     // words where conundrum=1 in lexicon.txt
 
-export async function loadLexicons(simplePath, conundrumsPath, onProgress) {
-  onProgress('Loading lexicons...');
-  const [simpleText, conundrumsText] = await Promise.all([
-    fetch(simplePath).then(r => r.text()),
-    fetch(conundrumsPath).then(r => r.text()),
-  ]);
-  LEXICON = parseWordList(simpleText);
-  LEXICON_SET = new Set(LEXICON);
-  CONUNDRUMS = parseWordList(conundrumsText);
+export async function loadLexicons(lexiconPath, onProgress) {
+  onProgress('Loading lexicon...');
+  const text = await fetch(lexiconPath).then(r => r.text());
+  for (const line of text.split('\n')) {
+    const parts = line.split('\t');
+    if (parts.length < 3) continue;
+    const word = parts[0].trim().toUpperCase();
+    if (!word || !/^[A-Z]+$/.test(word)) continue;
+    const common = parts[1].trim() === '1';
+    const conundrum = parts[2].trim() === '1';
+    FULL_LEXICON.push(word);
+    FULL_LEXICON_SET.add(word);
+    if (common) { LEXICON.push(word); LEXICON_SET.add(word); }
+    if (conundrum) CONUNDRUMS.push(word);
+  }
   onProgress(null);
-}
-
-function parseWordList(text) {
-  return text.split('\n')
-    .map(line => line.split('\t')[0].trim().toUpperCase())
-    .filter(w => w && /^[A-Z]+$/.test(w));
 }
 
 // ── Counter helpers ───────────────────────────────────────────────────────────
@@ -282,24 +284,25 @@ export function findSubstituteLetter(word, lexicon) {
 // ── Solution mode: run all active styles ──────────────────────────────────────
 export function runSolutionMode(word, styles, restrictions) {
   word = word.toUpperCase();
+  const lexicon = restrictions.includes('no_obscure_subwords') ? LEXICON : FULL_LEXICON;
   const sections = [];
 
   if (styles.includes('two_words')) {
-    const pairs = findPairs(word, LEXICON);
+    const pairs = findPairs(word, lexicon);
     let strings = pairs.flatMap(combo => comboToStrings(combo));
     strings = applyRestrictions([...new Set(strings)].sort(), word, restrictions);
     sections.push({ title: 'Two-word combinations', rows: strings.map(s => ({ scramble: s })) });
   }
 
   if (styles.includes('three_words')) {
-    const triples = findTriples(word, LEXICON);
+    const triples = findTriples(word, lexicon);
     let strings = triples.flatMap(combo => comboToStrings(combo));
     strings = applyRestrictions([...new Set(strings)].sort(), word, restrictions);
     sections.push({ title: 'Three-word combinations', rows: strings.map(s => ({ scramble: s })) });
   }
 
   if (styles.includes('substitute_letter')) {
-    let subs = findSubstituteLetter(word, LEXICON);
+    let subs = findSubstituteLetter(word, lexicon);
     subs = subs.filter(r => applyRestrictions([r.scramble], word, restrictions).length > 0);
     sections.push({
       title: 'Substitute-letter',
@@ -308,7 +311,7 @@ export function runSolutionMode(word, styles, restrictions) {
   }
 
   if (styles.includes('stem')) {
-    let stems = findStem(word, LEXICON);
+    let stems = findStem(word, lexicon);
     stems = stems.filter(r => applyRestrictions([r.scramble], word, restrictions).length > 0);
     sections.push({
       title: 'Stem',
@@ -317,7 +320,7 @@ export function runSolutionMode(word, styles, restrictions) {
   }
 
   if (styles.includes('double_stem')) {
-    let ds = findDoubleStem(word, LEXICON);
+    let ds = findDoubleStem(word, lexicon);
     ds = ds.filter(r => applyRestrictions([r.scramble], word, restrictions).length > 0);
     sections.push({
       title: 'Double stem',
@@ -332,6 +335,7 @@ export function runSolutionMode(word, styles, restrictions) {
 export function runSubwordMode(subword, restrictions) {
   subword = subword.toUpperCase();
   const subCounter = counter(subword);
+  const lexSet = restrictions.includes('no_obscure_subwords') ? LEXICON_SET : FULL_LEXICON_SET;
   const hits = [];
   const seen = new Set();
 
@@ -343,7 +347,7 @@ export function runSubwordMode(subword, restrictions) {
 
     for (const perm of permutations(remainingLetters)) {
       const candidate = perm.join('');
-      if (LEXICON_SET.has(candidate)) {
+      if (lexSet.has(candidate)) {
         for (const scramble of [subword + candidate, candidate + subword]) {
           if (applyRestrictions([scramble], w, restrictions).length > 0) {
             const key = scramble + '|' + w;
