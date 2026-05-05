@@ -331,6 +331,23 @@ export function runSolutionMode(word, styles, restrictions) {
   return sections;
 }
 
+// ── Jumbledness ───────────────────────────────────────────────────────────────
+// Returns a string like "70%" — 100% minus 10% per shared adjacency pair.
+// Adjacencies include virtual ^ (word-start) and $ (word-end) characters.
+export function jumbledness(scramble, solution) {
+  const adjSet = word => {
+    const s = '^' + word + '$';
+    const pairs = new Set();
+    for (let i = 0; i < s.length - 1; i++) pairs.add(s[i] + s[i + 1]);
+    return pairs;
+  };
+  const solAdj = adjSet(solution);
+  const scrAdj = adjSet(scramble);
+  let shared = 0;
+  for (const p of scrAdj) { if (solAdj.has(p)) shared++; }
+  return (100 - shared * 10) + '%';
+}
+
 // ── Subword mode ──────────────────────────────────────────────────────────────
 export function runSubwordMode(subword, restrictions) {
   subword = subword.toUpperCase();
