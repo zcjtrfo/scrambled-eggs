@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scrambled Eggs</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f5f5f5;
+      color: #222;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1a1a2e;
+      color: #e0e0e0;
+      padding: 1.2rem 2rem;
+      font-size: 1.4rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    #status-bar {
+      background: #16213e;
+      color: #aaa;
+      font-size: 0.8rem;
+      padding: 0.3rem 2rem;
+      min-height: 1.6rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0;
+      background: #0f3460;
+      padding: 0 2rem;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: #aac4de;
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      font-size: 0.95rem;
+      border-bottom: 3px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .tab-btn:hover { color: #fff; }
+    .tab-btn.active { color: #fff; border-bottom-color: #e94560; }
+
+    .tab-content { display: none; padding: 1.5rem 2rem; }
+    .tab-content.active { display: flex; flex-direction: column; gap: 1.2rem; }
+
+    .panel {
+      background: #fff;
+      border-radius: 8px;
+      padding: 1.2rem 1.5rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .panel h3 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #888;
+      margin-bottom: 0.8rem;
+    }
+
+    .row { display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap; }
+
+    input[type="text"] {
+      padding: 0.5rem 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+      width: 220px;
+      text-transform: uppercase;
+    }
+
+    input[type="text"]::placeholder { text-transform: none; }
+
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.2rem;
+    }
+
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    button.run-btn {
+      background: #e94560;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.55rem 1.4rem;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    button.run-btn:hover { background: #c73652; }
+    button.run-btn:disabled { background: #aaa; cursor: default; }
+
+    .results-area {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+
+    .results-area table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    .results-area th {
+      position: sticky;
+      top: 0;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      padding: 0.55rem 1rem;
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+    }
+
+    .results-area td {
+      padding: 0.4rem 1rem;
+      border-bottom: 1px solid #f0f0f0;
+      font-family: 'Courier New', monospace;
+    }
+
+    .results-area tr:last-child td { border-bottom: none; }
+    .results-area tr:hover td { background: #f9f9f9; }
+
+    .section-header td {
+      background: #f0f4fa;
+      font-family: 'Segoe UI', sans-serif;
+      font-weight: 600;
+      color: #0f3460;
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+      padding: 0.45rem 1rem;
+    }
+
+    .count-row td {
+      color: #888;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 0.8rem;
+      padding: 0.3rem 1rem 0.5rem;
+    }
+
+    .empty-msg {
+      padding: 2rem;
+      text-align: center;
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+
+    .badge-coming {
+      background: #f0f0f0;
+      color: #aaa;
+      border-radius: 4px;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>Scrambled Eggs</header>
+<div id="status-bar">Loading lexicons…</div>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="subword">Subword</button>
+  <button class="tab-btn" data-tab="solution">Solution</button>
+  <button class="tab-btn" data-tab="batch">Batch <span class="badge-coming">soon</span></button>
+</nav>
+
+<!-- ── SUBWORD TAB ─────────────────────────────────────────────────────────── -->
+<div id="tab-subword" class="tab-content active">
+  <div class="panel">
+    <h3>Subword</h3>
+    <div class="row">
+      <input type="text" id="sw-input" placeholder="e.g. BLOOD" maxlength="8" />
+      <button class="run-btn" id="sw-run" disabled>Search</button>
+    </div>
+  </div>
+  <div class="panel">
+    <h3>Restrictions</h3>
+    <div class="checkbox-group" id="sw-restrictions"></div>
+  </div>
+  <div class="results-area" id="sw-results">
+    <div class="empty-msg">Enter a subword and press Search.</div>
+  </div>
+</div>
+
+<!-- ── SOLUTION TAB ───────────────────────────────────────────────────────── -->
+<div id="tab-solution" class="tab-content">
+  <div class="panel">
+    <h3>Solution word</h3>
+    <div class="row">
+      <input type="text" id="sol-input" placeholder="e.g. DRAGONFLY" maxlength="9" />
+      <button class="run-btn" id="sol-run" disabled>Generate</button>
+    </div>
+  </div>
+  <div class="panel">
+    <h3>Styles</h3>
+    <div class="checkbox-group" id="sol-styles"></div>
+  </div>
+  <div class="panel">
+    <h3>Restrictions</h3>
+    <div class="checkbox-group" id="sol-restrictions"></div>
+  </div>
+  <div class="results-area" id="sol-results">
+    <div class="empty-msg">Enter a 9-letter solution and press Generate.</div>
+  </div>
+</div>
+
+<!-- ── BATCH TAB ──────────────────────────────────────────────────────────── -->
+<div id="tab-batch" class="tab-content">
+  <div class="panel">
+    <div class="empty-msg" style="padding:3rem">Batch mode coming soon.</div>
+  </div>
+</div>
+
+<script type="module">
+  import {
+    loadLexicons, applyRestrictions,
+    runSolutionMode, runSubwordMode, jumbledness
+  } from './scramble.js';
+
+  // ── Option definitions ────────────────────────────────────────────────────
+  const STYLES_DEF = [
+    { id: 'two_words',         label: 'Two words' },
+    { id: 'three_words',       label: 'Three words' },
+    { id: 'substitute_letter', label: 'Substitute letter' },
+    { id: 'stem',              label: 'Stem' },
+    { id: 'double_stem',       label: 'Double stem' },
+  ];
+
+  const RESTRICTIONS_DEF = [
+    { id: 'start_end_same_position', label: 'Start/end same position' },
+    { id: 'no_four_consecutive',     label: 'No 4 consecutive' },
+    { id: 'no_five_same_order',      label: 'No 5 same order' },
+    { id: 'no_four_same_position',   label: 'No 4 same position' },
+    { id: 'no_obscure_subwords',     label: 'No obscure subwords' },
+  ];
+
+  // ── Build checkbox groups ─────────────────────────────────────────────────
+  function buildCheckboxes(containerId, defs, defaultChecked = true) {
+    const container = document.getElementById(containerId);
+    for (const { id, label } of defs) {
+      const lbl = document.createElement('label');
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.value = id;
+      cb.checked = defaultChecked;
+      lbl.append(cb, label);
+      container.appendChild(lbl);
+    }
+  }
+
+  function getChecked(containerId) {
+    return [...document.querySelectorAll(`#${containerId} input[type=checkbox]:checked`)]
+      .map(cb => cb.value);
+  }
+
+  buildCheckboxes('sol-styles', STYLES_DEF, true);
+  buildCheckboxes('sol-restrictions', RESTRICTIONS_DEF, true);
+  buildCheckboxes('sw-restrictions', RESTRICTIONS_DEF, true);
+
+  // ── Tabs ──────────────────────────────────────────────────────────────────
+  for (const btn of document.querySelectorAll('.tab-btn')) {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  }
+
+  // ── Load lexicons ─────────────────────────────────────────────────────────
+  const statusBar = document.getElementById('status-bar');
+  let ready = false;
+
+  await loadLexicons('./lexicon.txt', msg => {
+    if (msg) {
+      statusBar.textContent = msg;
+    } else {
+      statusBar.textContent = 'Lexicons loaded.';
+      ready = true;
+      document.getElementById('sw-run').disabled = false;
+      document.getElementById('sol-run').disabled = false;
+    }
+  });
+
+  // ── Render helpers ────────────────────────────────────────────────────────
+  function renderTable(containerId, buildFn) {
+    const el = document.getElementById(containerId);
+    const table = document.createElement('table');
+    buildFn(table);
+    el.innerHTML = '';
+    el.appendChild(table);
+  }
+
+  function addSectionHeader(tbody, text, colspan) {
+    const tr = document.createElement('tr');
+    tr.className = 'section-header';
+    const td = document.createElement('td');
+    td.colSpan = colspan;
+    td.textContent = text;
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+  }
+
+  function addCountRow(tbody, count, colspan) {
+    const tr = document.createElement('tr');
+    tr.className = 'count-row';
+    const td = document.createElement('td');
+    td.colSpan = colspan;
+    td.textContent = `${count} result${count !== 1 ? 's' : ''}`;
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+  }
+
+  // ── Solution mode ─────────────────────────────────────────────────────────
+  document.getElementById('sol-run').addEventListener('click', () => {
+    const word = document.getElementById('sol-input').value.trim().toUpperCase();
+    if (!word || word.length !== 9) {
+      document.getElementById('sol-results').innerHTML =
+        '<div class="empty-msg">Please enter exactly 9 letters.</div>';
+      return;
+    }
+    const styles = getChecked('sol-styles');
+    const restrictions = getChecked('sol-restrictions');
+    const sections = runSolutionMode(word, styles, restrictions);
+    const total = sections.reduce((s, sec) => s + sec.rows.length, 0);
+
+    if (total === 0) {
+      document.getElementById('sol-results').innerHTML =
+        '<div class="empty-msg">No results found.</div>';
+      return;
+    }
+
+    renderTable('sol-results', table => {
+      const hasDetail = sections.some(s => s.rows.some(r => r.detail));
+      const colspan = hasDetail ? 3 : 2;
+      const thead = table.createTHead();
+      const hrow = thead.insertRow();
+      const th1 = document.createElement('th'); th1.textContent = 'Scramble'; hrow.appendChild(th1);
+      if (hasDetail) {
+        const th2 = document.createElement('th'); th2.textContent = 'Detail'; hrow.appendChild(th2);
+      }
+      const th3 = document.createElement('th'); th3.textContent = 'Jumbledness'; hrow.appendChild(th3);
+      const tbody = table.createTBody();
+      for (const section of sections) {
+        if (section.rows.length === 0) continue;
+        addSectionHeader(tbody, section.title, colspan);
+        for (const row of section.rows) {
+          const tr = tbody.insertRow();
+          tr.insertCell().textContent = row.scramble;
+          if (hasDetail) tr.insertCell().textContent = row.detail || '';
+          tr.insertCell().textContent = jumbledness(row.scramble, word);
+        }
+        addCountRow(tbody, section.rows.length, colspan);
+      }
+    });
+  });
+
+  // ── Subword mode ──────────────────────────────────────────────────────────
+  document.getElementById('sw-run').addEventListener('click', () => {
+    const subword = document.getElementById('sw-input').value.trim().toUpperCase();
+    if (!subword) {
+      document.getElementById('sw-results').innerHTML =
+        '<div class="empty-msg">Please enter a subword.</div>';
+      return;
+    }
+    const restrictions = getChecked('sw-restrictions');
+    const hits = runSubwordMode(subword, restrictions);
+
+    if (hits.length === 0) {
+      document.getElementById('sw-results').innerHTML =
+        '<div class="empty-msg">No results found.</div>';
+      return;
+    }
+
+    renderTable('sw-results', table => {
+      const thead = table.createTHead();
+      const hrow = thead.insertRow();
+      ['Scramble', 'Solution', 'Jumbledness'].forEach(t => {
+        const th = document.createElement('th'); th.textContent = t; hrow.appendChild(th);
+      });
+      const tbody = table.createTBody();
+      for (const { scramble, solution } of hits) {
+        const tr = tbody.insertRow();
+        tr.insertCell().textContent = scramble;
+        tr.insertCell().textContent = solution;
+        tr.insertCell().textContent = jumbledness(scramble, solution);
+      }
+      addCountRow(tbody, hits.length, 3);
+    });
+  });
+
+  // ── Enter key support ─────────────────────────────────────────────────────
+  document.getElementById('sol-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('sol-run').click();
+  });
+  document.getElementById('sw-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('sw-run').click();
+  });
+</script>
+</body>
+</html>
