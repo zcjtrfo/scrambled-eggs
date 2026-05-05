@@ -241,7 +241,7 @@
 <script type="module">
   import {
     loadLexicons, applyRestrictions,
-    runSolutionMode, runSubwordMode
+    runSolutionMode, runSubwordMode, jumbledness
   } from './scramble.js';
 
   // ── Option definitions ────────────────────────────────────────────────────
@@ -359,13 +359,14 @@
 
     renderTable('sol-results', table => {
       const hasDetail = sections.some(s => s.rows.some(r => r.detail));
-      const colspan = hasDetail ? 2 : 1;
+      const colspan = hasDetail ? 3 : 2;
       const thead = table.createTHead();
       const hrow = thead.insertRow();
       const th1 = document.createElement('th'); th1.textContent = 'Scramble'; hrow.appendChild(th1);
       if (hasDetail) {
         const th2 = document.createElement('th'); th2.textContent = 'Detail'; hrow.appendChild(th2);
       }
+      const th3 = document.createElement('th'); th3.textContent = 'Jumbledness'; hrow.appendChild(th3);
       const tbody = table.createTBody();
       for (const section of sections) {
         if (section.rows.length === 0) continue;
@@ -374,6 +375,7 @@
           const tr = tbody.insertRow();
           tr.insertCell().textContent = row.scramble;
           if (hasDetail) tr.insertCell().textContent = row.detail || '';
+          tr.insertCell().textContent = jumbledness(row.scramble, word);
         }
         addCountRow(tbody, section.rows.length, colspan);
       }
@@ -400,7 +402,7 @@
     renderTable('sw-results', table => {
       const thead = table.createTHead();
       const hrow = thead.insertRow();
-      ['Scramble', 'Solution'].forEach(t => {
+      ['Scramble', 'Solution', 'Jumbledness'].forEach(t => {
         const th = document.createElement('th'); th.textContent = t; hrow.appendChild(th);
       });
       const tbody = table.createTBody();
@@ -408,8 +410,9 @@
         const tr = tbody.insertRow();
         tr.insertCell().textContent = scramble;
         tr.insertCell().textContent = solution;
+        tr.insertCell().textContent = jumbledness(scramble, solution);
       }
-      addCountRow(tbody, hits.length, 2);
+      addCountRow(tbody, hits.length, 3);
     });
   });
 
