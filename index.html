@@ -241,6 +241,10 @@
     <div class="row">
       <input type="text" id="sol-input" placeholder="e.g. DRAGONFLY" maxlength="9" />
       <button class="run-btn" id="sol-run" disabled>Generate</button>
+      <div id="sol-warning" style="display:none; align-items:center; gap:0.4rem; background:#fffbea; border:1px solid #f5c518; border-radius:6px; padding:0.4rem 0.8rem; font-size:0.88rem; color:#7a5c00;">
+        <span style="font-size:1.1rem">&#9888;</span>
+        <span></span>
+      </div>
     </div>
   </div>
   <div class="panel">
@@ -257,10 +261,6 @@
   </div>
   <div class="results-area" id="sol-results">
     <div class="empty-msg">Enter a 9-letter solution and press Generate.</div>
-  </div>
-  <div id="sol-warning" style="display:none; align-items:center; gap:0.6rem; background:#fffbea; border:1px solid #f5c518; border-radius:8px; padding:0.8rem 1.2rem; font-size:0.9rem; color:#7a5c00;">
-    <span style="font-size:1.2rem">&#9888;</span>
-    <span></span>
   </div>
 </div>
 
@@ -383,22 +383,41 @@
       sortState[colIdx] = null;
       th.addEventListener('click', () => {
         const tbody = table.tBodies[0];
-        // Collect only data rows (skip section-header and count-row)
-        const rows = [...tbody.rows].filter(
-          r => !r.classList.contains('section-header') && !r.classList.contains('count-row')
-        );
         const isDesc = defaultDescCols.includes(colIdx)
           ? sortState[colIdx] !== 'desc'
           : sortState[colIdx] === 'asc';
-        rows.sort((a, b) => {
-          const av = a.cells[colIdx]?.textContent.trim() || '';
-          const bv = b.cells[colIdx]?.textContent.trim() || '';
-          const an = parseFloat(av);
-          const bn = parseFloat(bv);
-          const cmp = isNaN(an) || isNaN(bn) ? av.localeCompare(bv) : an - bn;
-          return isDesc ? -cmp : cmp;
-        });
-        rows.forEach(r => tbody.appendChild(r));
+        // Group rows into sections, preserving header/count rows in place
+        const allRows = [...tbody.rows];
+        const sections = [];
+        let current = null;
+        for (const r of allRows) {
+          if (r.classList.contains('section-header')) {
+            current = { header: r, data: [], count: null };
+            sections.push(current);
+          } else if (r.classList.contains('count-row')) {
+            if (current) current.count = r;
+          } else {
+            if (!current) { current = { header: null, data: [], count: null }; sections.push(current); }
+            current.data.push(r);
+          }
+        }
+        // Sort data rows within each section
+        for (const sec of sections) {
+          sec.data.sort((a, b) => {
+            const av = a.cells[colIdx]?.textContent.trim() || '';
+            const bv = b.cells[colIdx]?.textContent.trim() || '';
+            const an = parseFloat(av);
+            const bn = parseFloat(bv);
+            const cmp = isNaN(an) || isNaN(bn) ? av.localeCompare(bv) : an - bn;
+            return isDesc ? -cmp : cmp;
+          });
+        }
+        // Re-append in order: header, data rows, count
+        for (const sec of sections) {
+          if (sec.header) tbody.appendChild(sec.header);
+          sec.data.forEach(r => tbody.appendChild(r));
+          if (sec.count) tbody.appendChild(sec.count);
+        }
         headers.forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
         th.classList.add(isDesc ? 'sort-desc' : 'sort-asc');
         sortState[colIdx] = isDesc ? 'desc' : 'asc';
