@@ -23,6 +23,10 @@ export async function loadLexicons(lexiconPath, onProgress) {
   onProgress(null);
 }
 
+export function isConundrum(word) {
+  return CONUNDRUMS.includes(word.toUpperCase());
+}
+
 // ── Counter helpers ───────────────────────────────────────────────────────────
 function counter(str) {
   const c = {};

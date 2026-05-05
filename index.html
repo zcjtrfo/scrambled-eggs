@@ -191,6 +191,14 @@
       width: 160px;
       accent-color: #e94560;
     }
+
+    .results-area th.sortable {
+      cursor: pointer;
+      user-select: none;
+    }
+    .results-area th.sortable:hover { background: #2a2a4e; }
+    .results-area th.sort-asc::after  { content: ' ▲'; font-size: 0.7em; }
+    .results-area th.sort-desc::after { content: ' ▼'; font-size: 0.7em; }
   </style>
 </head>
 <body>
@@ -217,8 +225,8 @@
     <h3>Restrictions</h3>
     <div class="checkbox-group" id="sw-restrictions"></div>
     <div class="slider-row">
-      <span>Min. jumbledness: <strong id="sw-jumb-val">60%</strong></span>
-      <input type="range" id="sw-jumb" min="0" max="100" step="10" value="60" />
+      <span>Min. jumbledness: <strong id="sw-jumb-val">70%</strong></span>
+      <input type="range" id="sw-jumb" min="0" max="100" step="10" value="70" />
     </div>
   </div>
   <div class="results-area" id="sw-results">
@@ -243,12 +251,16 @@
     <h3>Restrictions</h3>
     <div class="checkbox-group" id="sol-restrictions"></div>
     <div class="slider-row">
-      <span>Min. jumbledness: <strong id="sol-jumb-val">60%</strong></span>
-      <input type="range" id="sol-jumb" min="0" max="100" step="10" value="60" />
+      <span>Min. jumbledness: <strong id="sol-jumb-val">70%</strong></span>
+      <input type="range" id="sol-jumb" min="0" max="100" step="10" value="70" />
     </div>
   </div>
   <div class="results-area" id="sol-results">
     <div class="empty-msg">Enter a 9-letter solution and press Generate.</div>
+  </div>
+  <div id="sol-warning" style="display:none; align-items:center; gap:0.6rem; background:#fffbea; border:1px solid #f5c518; border-radius:8px; padding:0.8rem 1.2rem; font-size:0.9rem; color:#7a5c00;">
+    <span style="font-size:1.2rem">&#9888;</span>
+    <span></span>
   </div>
 </div>
 
@@ -262,16 +274,16 @@
 <script type="module">
   import {
     loadLexicons, applyRestrictions,
-    runSolutionMode, runSubwordMode, jumbledness
+    runSolutionMode, runSubwordMode, jumbledness, isConundrum
   } from './scramble.js';
 
   // ── Option definitions ────────────────────────────────────────────────────
   const STYLES_DEF = [
-    { id: 'two_words',         label: 'Two words' },
-    { id: 'three_words',       label: 'Three words' },
-    { id: 'substitute_letter', label: 'Substitute letter' },
-    { id: 'stem',              label: 'Stem' },
-    { id: 'double_stem',       label: 'Double stem' },
+    { id: 'two_words',         label: 'Two words',         default: true },
+    { id: 'substitute_letter', label: 'Substitute letter', default: true },
+    { id: 'stem',              label: 'Stem',              default: true },
+    { id: 'double_stem',       label: 'Double stem',       default: true },
+    { id: 'three_words',       label: 'Three words',       default: false },
   ];
 
   const RESTRICTIONS_DEF = [
@@ -281,12 +293,12 @@
   // ── Build checkbox groups ─────────────────────────────────────────────────
   function buildCheckboxes(containerId, defs, defaultChecked = true) {
     const container = document.getElementById(containerId);
-    for (const { id, label } of defs) {
+    for (const { id, label, default: def } of defs) {
       const lbl = document.createElement('label');
       const cb = document.createElement('input');
       cb.type = 'checkbox';
       cb.value = id;
-      cb.checked = defaultChecked;
+      cb.checked = (def !== undefined ? def : defaultChecked);
       lbl.append(cb, label);
       container.appendChild(lbl);
     }
@@ -362,6 +374,38 @@
     tbody.appendChild(tr);
   }
 
+  // ── Sortable table helper ─────────────────────────────────────────────────
+  function makeSortable(table, defaultDescCols = []) {
+    const headers = [...table.querySelectorAll('th')];
+    const sortState = {};
+    headers.forEach((th, colIdx) => {
+      th.classList.add('sortable');
+      sortState[colIdx] = null;
+      th.addEventListener('click', () => {
+        const tbody = table.tBodies[0];
+        // Collect only data rows (skip section-header and count-row)
+        const rows = [...tbody.rows].filter(
+          r => !r.classList.contains('section-header') && !r.classList.contains('count-row')
+        );
+        const isDesc = defaultDescCols.includes(colIdx)
+          ? sortState[colIdx] !== 'desc'
+          : sortState[colIdx] === 'asc';
+        rows.sort((a, b) => {
+          const av = a.cells[colIdx]?.textContent.trim() || '';
+          const bv = b.cells[colIdx]?.textContent.trim() || '';
+          const an = parseFloat(av);
+          const bn = parseFloat(bv);
+          const cmp = isNaN(an) || isNaN(bn) ? av.localeCompare(bv) : an - bn;
+          return isDesc ? -cmp : cmp;
+        });
+        rows.forEach(r => tbody.appendChild(r));
+        headers.forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+        th.classList.add(isDesc ? 'sort-desc' : 'sort-asc');
+        sortState[colIdx] = isDesc ? 'desc' : 'asc';
+      });
+    });
+  }
+
   // ── Solution mode ─────────────────────────────────────────────────────────
   document.getElementById('sol-run').addEventListener('click', () => {
     const word = document.getElementById('sol-input').value.trim().toUpperCase();
@@ -369,6 +413,13 @@
       document.getElementById('sol-results').innerHTML =
         '<div class="empty-msg">Please enter exactly 9 letters.</div>';
       return;
+    }
+    const warningEl = document.getElementById('sol-warning');
+    if (!isConundrum(word)) {
+      warningEl.style.display = 'flex';
+      warningEl.querySelector('span').textContent = `${word} is not a valid conundrum!`;
+    } else {
+      warningEl.style.display = 'none';
     }
     const styles = getChecked('sol-styles');
     const restrictions = getChecked('sol-restrictions');
@@ -407,6 +458,7 @@
         }
         addCountRow(tbody, section.rows.length, colspan);
       }
+      makeSortable(table, [hasDetail ? 2 : 1]); // Jumbledness col descending by default
     });
   });
 
@@ -444,6 +496,7 @@
         tr.insertCell().textContent = jumbledness(scramble, solution);
       }
       addCountRow(tbody, hits.length, 3);
+      makeSortable(table, [2]); // Jumbledness col (index 2) descending by default
     });
   });
 
