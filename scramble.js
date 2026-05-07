@@ -35,6 +35,10 @@ export function conundrumDifficulty(word) {
   return CONUNDRUM_DIFFICULTY.get(word.toUpperCase()) || 0;
 }
 
+export function getConundrums() {
+  return CONUNDRUMS; // array of all valid conundrum words
+}
+
 // ── Counter helpers ───────────────────────────────────────────────────────────
 function counter(str) {
   const c = {};

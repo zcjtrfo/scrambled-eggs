@@ -199,9 +199,38 @@
     .results-area th.sortable:hover { background: #2a2a4e; }
     .results-area th.sort-asc::after  { content: ' ▲'; font-size: 0.7em; }
     .results-area th.sort-desc::after { content: ' ▼'; font-size: 0.7em; }
+
+    #ui-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.25);
+      z-index: 100;
+    }
+
+    .progress-wrap {
+      background: #e0e0e0;
+      border-radius: 4px;
+      height: 8px;
+      width: 100%;
+      margin-top: 0.7rem;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: #e94560;
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+    .progress-label {
+      font-size: 0.82rem;
+      color: #888;
+      margin-top: 0.3rem;
+    }
   </style>
 </head>
 <body>
+<div id="ui-overlay"></div>
 
 <header>Scrambled Eggs</header>
 <div id="status-bar">Loading lexicons…</div>
@@ -209,7 +238,7 @@
 <nav class="tabs">
   <button class="tab-btn active" data-tab="subword">Subword</button>
   <button class="tab-btn" data-tab="solution">Solution</button>
-  <button class="tab-btn" data-tab="batch">Batch <span class="badge-coming">soon</span></button>
+  <button class="tab-btn" data-tab="batch">Batch</button>
 </nav>
 
 <!-- ── SUBWORD TAB ─────────────────────────────────────────────────────────── -->
@@ -271,14 +300,45 @@
 <!-- ── BATCH TAB ──────────────────────────────────────────────────────────── -->
 <div id="tab-batch" class="tab-content">
   <div class="panel">
-    <div class="empty-msg" style="padding:3rem">Batch mode coming soon.</div>
+    <h3>Generate</h3>
+    <div class="row">
+      <label style="font-size:0.9rem">Number of conundrums:</label>
+      <input type="number" id="batch-n" value="10" min="1" max="500"
+        style="width:80px;text-transform:none" />
+      <button class="run-btn" id="batch-run" disabled>Generate</button>
+      <button class="run-btn" id="batch-cancel" style="display:none;background:#555">Cancel</button>
+      <span id="batch-complete" style="display:none;background:#2a7a3b;color:#fff;padding:0.3rem 0.9rem;border-radius:6px;font-size:0.9rem;font-weight:600">Generation complete!</span>
+    </div>
+    <div id="batch-progress" style="display:none">
+      <div class="progress-wrap"><div class="progress-bar" id="batch-bar"></div></div>
+      <div class="progress-label" id="batch-progress-label">0 / 0</div>
+    </div>
+  </div>
+  <div class="panel">
+    <h3>Styles</h3>
+    <div class="checkbox-group" id="batch-styles"></div>
+  </div>
+  <div class="panel">
+    <h3>Restrictions</h3>
+    <div class="checkbox-group" id="batch-restrictions"></div>
+    <div class="slider-row">
+      <span>Min. jumbledness: <strong id="batch-jumb-val">70%</strong></span>
+      <input type="range" id="batch-jumb" min="0" max="100" step="10" value="70" />
+    </div>
+    <div style="margin-top:0.6rem">
+      <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Difficulty</div>
+      <div class="checkbox-group" id="batch-difficulty"></div>
+    </div>
+  </div>
+  <div class="results-area" id="batch-results">
+    <div class="empty-msg">Set options and press Generate.</div>
   </div>
 </div>
 
 <script type="module">
   import {
     loadLexicons, applyRestrictions,
-    runSolutionMode, runSubwordMode, jumbledness, isConundrum, conundrumDifficulty
+    runSolutionMode, runSubwordMode, jumbledness, isConundrum, conundrumDifficulty, getConundrums
   } from './scramble.js';
 
   // ── Option definitions ────────────────────────────────────────────────────
@@ -316,6 +376,8 @@
   buildCheckboxes('sol-styles', STYLES_DEF, true);
   buildCheckboxes('sol-restrictions', RESTRICTIONS_DEF, true);
   buildCheckboxes('sw-restrictions', RESTRICTIONS_DEF, true);
+  buildCheckboxes('batch-styles', STYLES_DEF, true);
+  buildCheckboxes('batch-restrictions', RESTRICTIONS_DEF, true);
 
   const DIFFICULTY_DEF = [
     { id: '1', label: 'Easy' },
@@ -324,12 +386,16 @@
     { id: '4', label: 'Very Hard' },
   ];
   buildCheckboxes('sw-difficulty', DIFFICULTY_DEF, true);
+  buildCheckboxes('batch-difficulty', DIFFICULTY_DEF, true);
 
   document.getElementById('sol-jumb').addEventListener('input', e => {
     document.getElementById('sol-jumb-val').textContent = e.target.value + '%';
   });
   document.getElementById('sw-jumb').addEventListener('input', e => {
     document.getElementById('sw-jumb-val').textContent = e.target.value + '%';
+  });
+  document.getElementById('batch-jumb').addEventListener('input', e => {
+    document.getElementById('batch-jumb-val').textContent = e.target.value + '%';
   });
 
   // ── Tabs ──────────────────────────────────────────────────────────────────
@@ -354,6 +420,7 @@
       ready = true;
       document.getElementById('sw-run').disabled = false;
       document.getElementById('sol-run').disabled = false;
+      document.getElementById('batch-run').disabled = false;
     }
   });
 
@@ -418,8 +485,11 @@
           sec.data.sort((a, b) => {
             const ac = a.cells[colIdx];
             const bc = b.cells[colIdx];
-            const av = ac?.dataset.rank ?? ac?.textContent.trim() ?? '';
-            const bv = bc?.dataset.rank ?? bc?.textContent.trim() ?? '';
+            const avRaw = ac?.dataset.rank ?? ac?.textContent.trim() ?? '';
+            const bvRaw = bc?.dataset.rank ?? bc?.textContent.trim() ?? '';
+            // 'not found' / empty sorts after Z (sentinel \uffff)
+            const av = (avRaw === 'not found' || avRaw === '') ? '\uffff' : avRaw;
+            const bv = (bvRaw === 'not found' || bvRaw === '') ? '\uffff' : bvRaw;
             const an = parseFloat(av);
             const bn = parseFloat(bv);
             const cmp = isNaN(an) || isNaN(bn) ? av.localeCompare(bv) : an - bn;
@@ -538,6 +608,124 @@
       addCountRow(tbody, hits.length, 4);
       makeSortable(table, [3]); // Jumbledness col (index 3) descending by default
     });
+  });
+
+  // ── Batch mode ────────────────────────────────────────────────────────────
+  let batchCancelled = false;
+
+  document.getElementById('batch-cancel').addEventListener('click', () => {
+    batchCancelled = true;
+  });
+
+  document.getElementById('batch-run').addEventListener('click', async () => {
+    const input = document.getElementById('batch-n');
+    if (!input.value || parseInt(input.value) < 1 || parseInt(input.value) > 500) {
+      input.style.borderColor = '#e94560';
+      input.title = 'Please enter a number between 1 and 500';
+      return;
+    }
+    input.style.borderColor = '';
+    input.title = '';
+    const n = Math.min(500, Math.max(1, parseInt(input.value)));
+    const styles = getChecked('batch-styles');
+    const restrictions = getChecked('batch-restrictions');
+    const minJumb = parseInt(document.getElementById('batch-jumb').value);
+    const allowedDifficulties = new Set(getChecked('batch-difficulty').map(Number));
+    const DIFF_LABEL = { 1: 'Easy', 2: 'Medium', 3: 'Hard', 4: 'Very Hard' };
+
+    // Filter conundrums by allowed difficulty, then sample n at random
+    const pool = getConundrums().filter(w => allowedDifficulties.has(conundrumDifficulty(w)));
+    const sample = [];
+    const poolCopy = [...pool];
+    for (let i = 0; i < n && poolCopy.length > 0; i++) {
+      const idx = Math.floor(Math.random() * poolCopy.length);
+      sample.push(poolCopy.splice(idx, 1)[0]);
+    }
+
+    if (sample.length === 0) {
+      document.getElementById('batch-results').innerHTML =
+        '<div class="empty-msg">No conundrums match the selected difficulty filters.</div>';
+      return;
+    }
+
+    // Lock UI
+    batchCancelled = false;
+    document.getElementById('ui-overlay').style.display = 'block';
+    document.getElementById('batch-run').style.display = 'none';
+    document.getElementById('batch-cancel').style.display = '';
+    document.getElementById('batch-progress').style.display = 'block';
+    document.getElementById('batch-complete').style.display = 'none';
+    document.getElementById('batch-results').innerHTML = '';
+
+    const bar = document.getElementById('batch-bar');
+    const label = document.getElementById('batch-progress-label');
+
+    // Build table skeleton
+    const table = document.createElement('table');
+    const thead = table.createTHead();
+    const hrow = thead.insertRow();
+    ['Solution', 'Scramble', 'Difficulty', 'Jumbledness'].forEach(t => {
+      const th = document.createElement('th'); th.textContent = t; hrow.appendChild(th);
+    });
+    const tbody = table.createTBody();
+    document.getElementById('batch-results').appendChild(table);
+
+    const rows = [];
+    for (let i = 0; i < sample.length; i++) {
+      if (batchCancelled) break;
+
+      const word = sample[i];
+      const sections = runSolutionMode(word, styles, restrictions);
+      const allCandidates = sections.flatMap(s => s.rows).filter(
+        row => parseInt(jumbledness(row.scramble, word)) >= minJumb
+      );
+      const pick = allCandidates.length > 0
+        ? allCandidates[Math.floor(Math.random() * allCandidates.length)]
+        : null;
+      const rowData = {
+        word,
+        scramble: pick ? pick.scramble : null,
+        jumb: pick ? jumbledness(pick.scramble, word) : null
+      };
+      rows.push(rowData);
+
+      // Append row to live table
+      const tr = tbody.insertRow();
+      tr.insertCell().textContent = word;
+      const scrCell = tr.insertCell();
+      if (rowData.scramble) {
+        scrCell.textContent = rowData.scramble;
+      } else {
+        scrCell.textContent = 'not found';
+        scrCell.style.color = '#aaa';
+        scrCell.style.fontStyle = 'italic';
+      }
+      const diff = conundrumDifficulty(word);
+      const diffCell = tr.insertCell();
+      diffCell.textContent = DIFF_LABEL[diff] || '';
+      diffCell.dataset.rank = diff;
+      tr.insertCell().textContent = rowData.jumb || '';
+
+      // Update progress
+      const pct = Math.round(((i + 1) / sample.length) * 100);
+      bar.style.width = pct + '%';
+      label.textContent = `${i + 1} / ${sample.length}`;
+
+      // Yield to browser every item
+      await new Promise(r => setTimeout(r, 0));
+    }
+
+    addCountRow(tbody, rows.length, 4);
+    makeSortable(table, [3]);
+
+    // Unlock UI
+    document.getElementById('ui-overlay').style.display = 'none';
+    document.getElementById('batch-run').style.display = '';
+    document.getElementById('batch-cancel').style.display = 'none';
+    document.getElementById('batch-progress').style.display = 'none';
+    if (!batchCancelled) {
+      document.getElementById('batch-complete').style.display = '';
+    }
   });
 
   // ── Enter key support ─────────────────────────────────────────────────────
