@@ -227,6 +227,30 @@
       color: #888;
       margin-top: 0.3rem;
     }
+
+    .style-table {
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      width: 100%;
+    }
+    .style-table th, .style-table td {
+      padding: 0.35rem 0.8rem;
+      text-align: center;
+    }
+    .style-table th:first-child, .style-table td:first-child {
+      text-align: left;
+      font-weight: normal;
+      color: #333;
+    }
+    .style-table th {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #888;
+      border-bottom: 1px solid #e0e0e0;
+      font-weight: 500;
+    }
+    .style-table tr:not(:last-child) td { border-bottom: 1px solid #f0f0f0; }
   </style>
 </head>
 <body>
@@ -246,16 +270,16 @@
   <div class="panel">
     <h3>Subword</h3>
     <div class="row">
-      <input type="text" id="sw-input" placeholder="e.g. BLOOD" maxlength="8" />
+      <input type="text" id="sw-input" placeholder="e.g. FROG" maxlength="8" />
       <button class="run-btn" id="sw-run" disabled>Search</button>
     </div>
   </div>
   <div class="panel">
     <h3>Restrictions</h3>
     <div class="checkbox-group" id="sw-restrictions"></div>
-    <div class="slider-row">
-      <span>Min. jumbledness: <strong id="sw-jumb-val">70%</strong></span>
-      <input type="range" id="sw-jumb" min="0" max="100" step="10" value="70" />
+    <div style="margin-top:0.6rem">
+      <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Min. jumbledness: <strong id="sw-jumb-val">70%</strong></div>
+      <input type="range" id="sw-jumb" min="0" max="100" step="10" value="70" style="accent-color:#e94560;width:160px" />
     </div>
     <div style="margin-top:0.6rem">
       <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Difficulty</div>
@@ -272,7 +296,7 @@
   <div class="panel">
     <h3>Solution word</h3>
     <div class="row">
-      <input type="text" id="sol-input" placeholder="e.g. DRAGONFLY" maxlength="9" />
+      <input type="text" id="sol-input" placeholder="e.g. MAGNITUDE" maxlength="9" />
       <button class="run-btn" id="sol-run" disabled>Generate</button>
       <div id="sol-warning" style="display:none; align-items:center; gap:0.4rem; background:#fffbea; border:1px solid #f5c518; border-radius:6px; padding:0.4rem 0.8rem; font-size:0.88rem; color:#7a5c00;">
         <span style="font-size:1.1rem">&#9888;</span>
@@ -287,9 +311,9 @@
   <div class="panel">
     <h3>Restrictions</h3>
     <div class="checkbox-group" id="sol-restrictions"></div>
-    <div class="slider-row">
-      <span>Min. jumbledness: <strong id="sol-jumb-val">70%</strong></span>
-      <input type="range" id="sol-jumb" min="0" max="100" step="10" value="70" />
+    <div style="margin-top:0.6rem">
+      <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Min. jumbledness: <strong id="sol-jumb-val">70%</strong></div>
+      <input type="range" id="sol-jumb" min="0" max="100" step="10" value="70" style="accent-color:#e94560;width:160px" />
     </div>
   </div>
   <div class="results-area" id="sol-results">
@@ -316,18 +340,33 @@
   </div>
   <div class="panel">
     <h3>Styles</h3>
-    <div class="checkbox-group" id="batch-styles"></div>
+    <table class="style-table" id="batch-styles-table">
+      <thead><tr>
+        <th></th>
+        <th>Preferred</th>
+        <th>Allow if required</th>
+        <th>Never allow</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
   </div>
   <div class="panel">
     <h3>Restrictions</h3>
-    <div class="checkbox-group" id="batch-restrictions"></div>
-    <div class="slider-row">
-      <span>Min. jumbledness: <strong id="batch-jumb-val">70%</strong></span>
-      <input type="range" id="batch-jumb" min="0" max="100" step="10" value="70" />
-    </div>
-    <div style="margin-top:0.6rem">
+    <div style="margin-bottom:0.6rem">
       <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Difficulty</div>
       <div class="checkbox-group" id="batch-difficulty"></div>
+    </div>
+    <div style="margin-top:0.6rem">
+      <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Obscure subwords</div>
+      <div class="checkbox-group">
+        <label><input type="radio" name="batch-obscure" value="yes" /> Allow</label>
+        <label><input type="radio" name="batch-obscure" value="if-required" checked /> Only if required</label>
+        <label><input type="radio" name="batch-obscure" value="never" /> Never allow</label>
+      </div>
+    </div>
+    <div style="margin-top:0.6rem">
+      <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Min. jumbledness: <strong id="batch-jumb-val">70%</strong></div>
+      <input type="range" id="batch-jumb" min="0" max="100" step="10" value="70" style="accent-color:#e94560;width:160px" />
     </div>
   </div>
   <div class="results-area" id="batch-results">
@@ -376,8 +415,28 @@
   buildCheckboxes('sol-styles', STYLES_DEF, true);
   buildCheckboxes('sol-restrictions', RESTRICTIONS_DEF, true);
   buildCheckboxes('sw-restrictions', RESTRICTIONS_DEF, true);
-  buildCheckboxes('batch-styles', STYLES_DEF, true);
-  buildCheckboxes('batch-restrictions', RESTRICTIONS_DEF, true);
+  // ── Batch style table ─────────────────────────────────────────────────────
+  const STYLE_DEFAULT_BUCKET = { two_words: 'preferred', substitute_letter: 'preferred', stem: 'preferred', double_stem: 'preferred', three_words: 'fallback' };
+  (function initStyleTable() {
+    const tbody = document.querySelector('#batch-styles-table tbody');
+    STYLES_DEF.forEach(({ id, label }) => {
+      const def = STYLE_DEFAULT_BUCKET[id] || 'preferred';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${label}</td>
+        <td><input type="radio" name="bstyle-${id}" value="preferred" ${def === 'preferred' ? 'checked' : ''} /></td>
+        <td><input type="radio" name="bstyle-${id}" value="fallback"  ${def === 'fallback'  ? 'checked' : ''} /></td>
+        <td><input type="radio" name="bstyle-${id}" value="never"     ${def === 'never'     ? 'checked' : ''} /></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  })();
+
+  function getBatchStyles(bucket) {
+    return STYLES_DEF
+      .filter(({ id }) => document.querySelector(`input[name="bstyle-${id}"]:checked`)?.value === bucket)
+      .map(({ id }) => id);
+  }
 
   const DIFFICULTY_DEF = [
     { id: '1', label: 'Easy' },
@@ -567,16 +626,21 @@
 
   // ── Subword mode ──────────────────────────────────────────────────────────
   document.getElementById('sw-run').addEventListener('click', () => {
-    const subword = document.getElementById('sw-input').value.trim().toUpperCase();
-    if (!subword) {
+    const input = document.getElementById('sw-input');
+    const subword = input.value.trim().toUpperCase();
+    if (!subword || subword.length < 3 || subword.length > 8) {
+      input.style.borderColor = '#e94560';
+      input.title = 'Please enter between 3 and 8 letters';
       document.getElementById('sw-results').innerHTML =
-        '<div class="empty-msg">Please enter a subword.</div>';
+        '<div class="empty-msg">Please enter between 3 and 8 letters.</div>';
       return;
     }
+    input.style.borderColor = '';
+    input.title = '';
     const restrictions = getChecked('sw-restrictions');
     const minJumb = parseInt(document.getElementById('sw-jumb').value);
     const allowedDifficulties = new Set(getChecked('sw-difficulty').map(Number));
-    const DIFF_LABEL = { 1: 'Easy', 2: 'Medium', 3: 'Hard', 4: 'Very Hard' };
+    const DIFF_LABEL = { 1: '🟩⬜⬜⬜', 2: '🟨🟨⬜⬜', 3: '🟧🟧🟧⬜', 4: '🟥🟥🟥🟥' };
     const hits = runSubwordMode(subword, restrictions).filter(
       ({ scramble, solution, difficulty }) =>
         parseInt(jumbledness(scramble, solution)) >= minJumb &&
@@ -627,11 +691,19 @@
     input.style.borderColor = '';
     input.title = '';
     const n = Math.min(500, Math.max(1, parseInt(input.value)));
-    const styles = getChecked('batch-styles');
-    const restrictions = getChecked('batch-restrictions');
+    const preferredStyles = getBatchStyles('preferred');
+    const fallbackStyles = getBatchStyles('fallback');
+    const obscureMode = document.querySelector('input[name="batch-obscure"]:checked').value;
     const minJumb = parseInt(document.getElementById('batch-jumb').value);
     const allowedDifficulties = new Set(getChecked('batch-difficulty').map(Number));
-    const DIFF_LABEL = { 1: 'Easy', 2: 'Medium', 3: 'Hard', 4: 'Very Hard' };
+    const DIFF_LABEL = { 1: '🟩⬜⬜⬜', 2: '🟨🟨⬜⬜', 3: '🟧🟧🟧⬜', 4: '🟥🟥🟥🟥' };
+    const noObscure = ['no_obscure_subwords'];
+    const withObscure = [];
+    function getCandidates(w, styles, restr) {
+      return runSolutionMode(w, styles, restr)
+        .flatMap(s => s.rows)
+        .filter(row => parseInt(jumbledness(row.scramble, w)) >= minJumb);
+    }
 
     // Filter conundrums by allowed difficulty, then sample n at random
     const pool = getConundrums().filter(w => allowedDifficulties.has(conundrumDifficulty(w)));
@@ -675,12 +747,27 @@
       if (batchCancelled) break;
 
       const word = sample[i];
-      const sections = runSolutionMode(word, styles, restrictions);
-      const allCandidates = sections.flatMap(s => s.rows).filter(
-        row => parseInt(jumbledness(row.scramble, word)) >= minJumb
-      );
-      const pick = allCandidates.length > 0
-        ? allCandidates[Math.floor(Math.random() * allCandidates.length)]
+      let candidates = [];
+      if (obscureMode === 'yes') {
+        // Obscure always allowed
+        candidates = getCandidates(word, preferredStyles, withObscure);
+        if (candidates.length === 0 && fallbackStyles.length > 0)
+          candidates = getCandidates(word, [...preferredStyles, ...fallbackStyles], withObscure);
+      } else if (obscureMode === 'never') {
+        // Obscure never allowed
+        candidates = getCandidates(word, preferredStyles, noObscure);
+        if (candidates.length === 0 && fallbackStyles.length > 0)
+          candidates = getCandidates(word, [...preferredStyles, ...fallbackStyles], noObscure);
+      } else {
+        // Only if required: expand obscure before expanding styles
+        candidates = getCandidates(word, preferredStyles, noObscure);
+        if (candidates.length === 0)
+          candidates = getCandidates(word, preferredStyles, withObscure);
+        if (candidates.length === 0 && fallbackStyles.length > 0)
+          candidates = getCandidates(word, [...preferredStyles, ...fallbackStyles], withObscure);
+      }
+      const pick = candidates.length > 0
+        ? candidates[Math.floor(Math.random() * candidates.length)]
         : null;
       const rowData = {
         word,
