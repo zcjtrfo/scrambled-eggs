@@ -228,6 +228,10 @@
       <span>Min. jumbledness: <strong id="sw-jumb-val">70%</strong></span>
       <input type="range" id="sw-jumb" min="0" max="100" step="10" value="70" />
     </div>
+    <div style="margin-top:0.6rem">
+      <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Difficulty</div>
+      <div class="checkbox-group" id="sw-difficulty"></div>
+    </div>
   </div>
   <div class="results-area" id="sw-results">
     <div class="empty-msg">Enter a subword and press Search.</div>
@@ -274,7 +278,7 @@
 <script type="module">
   import {
     loadLexicons, applyRestrictions,
-    runSolutionMode, runSubwordMode, jumbledness, isConundrum
+    runSolutionMode, runSubwordMode, jumbledness, isConundrum, conundrumDifficulty
   } from './scramble.js';
 
   // ── Option definitions ────────────────────────────────────────────────────
@@ -312,6 +316,14 @@
   buildCheckboxes('sol-styles', STYLES_DEF, true);
   buildCheckboxes('sol-restrictions', RESTRICTIONS_DEF, true);
   buildCheckboxes('sw-restrictions', RESTRICTIONS_DEF, true);
+
+  const DIFFICULTY_DEF = [
+    { id: '1', label: 'Easy' },
+    { id: '2', label: 'Medium' },
+    { id: '3', label: 'Hard' },
+    { id: '4', label: 'Very Hard' },
+  ];
+  buildCheckboxes('sw-difficulty', DIFFICULTY_DEF, true);
 
   document.getElementById('sol-jumb').addEventListener('input', e => {
     document.getElementById('sol-jumb-val').textContent = e.target.value + '%';
@@ -404,8 +416,10 @@
         // Sort data rows within each section
         for (const sec of sections) {
           sec.data.sort((a, b) => {
-            const av = a.cells[colIdx]?.textContent.trim() || '';
-            const bv = b.cells[colIdx]?.textContent.trim() || '';
+            const ac = a.cells[colIdx];
+            const bc = b.cells[colIdx];
+            const av = ac?.dataset.rank ?? ac?.textContent.trim() ?? '';
+            const bv = bc?.dataset.rank ?? bc?.textContent.trim() ?? '';
             const an = parseFloat(av);
             const bn = parseFloat(bv);
             const cmp = isNaN(an) || isNaN(bn) ? av.localeCompare(bv) : an - bn;
@@ -491,8 +505,12 @@
     }
     const restrictions = getChecked('sw-restrictions');
     const minJumb = parseInt(document.getElementById('sw-jumb').value);
+    const allowedDifficulties = new Set(getChecked('sw-difficulty').map(Number));
+    const DIFF_LABEL = { 1: 'Easy', 2: 'Medium', 3: 'Hard', 4: 'Very Hard' };
     const hits = runSubwordMode(subword, restrictions).filter(
-      ({ scramble, solution }) => parseInt(jumbledness(scramble, solution)) >= minJumb
+      ({ scramble, solution, difficulty }) =>
+        parseInt(jumbledness(scramble, solution)) >= minJumb &&
+        allowedDifficulties.has(difficulty)
     );
 
     if (hits.length === 0) {
@@ -504,18 +522,21 @@
     renderTable('sw-results', table => {
       const thead = table.createTHead();
       const hrow = thead.insertRow();
-      ['Scramble', 'Solution', 'Jumbledness'].forEach(t => {
+      ['Scramble', 'Solution', 'Difficulty', 'Jumbledness'].forEach(t => {
         const th = document.createElement('th'); th.textContent = t; hrow.appendChild(th);
       });
       const tbody = table.createTBody();
-      for (const { scramble, solution } of hits) {
+      for (const { scramble, solution, difficulty } of hits) {
         const tr = tbody.insertRow();
         tr.insertCell().textContent = scramble;
         tr.insertCell().textContent = solution;
+        const diffCell = tr.insertCell();
+        diffCell.textContent = DIFF_LABEL[difficulty] || '';
+        diffCell.dataset.rank = difficulty;
         tr.insertCell().textContent = jumbledness(scramble, solution);
       }
-      addCountRow(tbody, hits.length, 3);
-      makeSortable(table, [2]); // Jumbledness col (index 2) descending by default
+      addCountRow(tbody, hits.length, 4);
+      makeSortable(table, [3]); // Jumbledness col (index 3) descending by default
     });
   });
 

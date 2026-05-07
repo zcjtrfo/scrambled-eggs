@@ -3,7 +3,8 @@ let LEXICON = [];        // common words (commonness=1 in lexicon.txt)
 let LEXICON_SET = new Set();
 let FULL_LEXICON = [];   // all words in lexicon.txt
 let FULL_LEXICON_SET = new Set();
-let CONUNDRUMS = [];     // words where conundrum=1 in lexicon.txt
+let CONUNDRUMS = [];     // words where conundrum difficulty > 0
+let CONUNDRUM_DIFFICULTY = new Map(); // word -> difficulty value (1-4)
 
 export async function loadLexicons(lexiconPath, onProgress) {
   onProgress('Loading lexicon...');
@@ -14,17 +15,24 @@ export async function loadLexicons(lexiconPath, onProgress) {
     const word = parts[0].trim().toUpperCase();
     if (!word || !/^[A-Z]+$/.test(word)) continue;
     const common = parts[1].trim() === '1';
-    const conundrum = parts[2].trim() === '1';
+    const difficulty = parseInt(parts[2].trim()) || 0;
     FULL_LEXICON.push(word);
     FULL_LEXICON_SET.add(word);
     if (common) { LEXICON.push(word); LEXICON_SET.add(word); }
-    if (conundrum) CONUNDRUMS.push(word);
+    if (difficulty > 0) {
+      CONUNDRUMS.push(word);
+      CONUNDRUM_DIFFICULTY.set(word, difficulty);
+    }
   }
   onProgress(null);
 }
 
 export function isConundrum(word) {
-  return CONUNDRUMS.includes(word.toUpperCase());
+  return CONUNDRUM_DIFFICULTY.has(word.toUpperCase());
+}
+
+export function conundrumDifficulty(word) {
+  return CONUNDRUM_DIFFICULTY.get(word.toUpperCase()) || 0;
 }
 
 // ── Counter helpers ───────────────────────────────────────────────────────────
@@ -374,7 +382,7 @@ export function runSubwordMode(subword, restrictions) {
             const key = scramble + '|' + w;
             if (!seen.has(key)) {
               seen.add(key);
-              hits.push({ scramble, solution: w });
+              hits.push({ scramble, solution: w, difficulty: CONUNDRUM_DIFFICULTY.get(w) || 0 });
             }
           }
         }
