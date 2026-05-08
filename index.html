@@ -331,7 +331,7 @@
         style="width:80px;text-transform:none" />
       <button class="run-btn" id="batch-run" disabled>Generate</button>
       <button class="run-btn" id="batch-cancel" style="display:none;background:#555">Cancel</button>
-      <span id="batch-complete" style="display:none;background:#2a7a3b;color:#fff;padding:0.3rem 0.9rem;border-radius:6px;font-size:0.9rem;font-weight:600">Generation complete!</span>
+      <span id="batch-complete" style="display:none;background:#2a7a3b;color:#fff;padding:0.3rem 0.9rem;border-radius:6px;font-size:0.9rem;font-weight:600;transition:opacity 2s ease">Generation complete!</span>
     </div>
     <div id="batch-progress" style="display:none">
       <div class="progress-wrap"><div class="progress-bar" id="batch-bar"></div></div>
@@ -377,7 +377,8 @@
 <script type="module">
   import {
     loadLexicons, applyRestrictions,
-    runSolutionMode, runSubwordMode, jumbledness, isConundrum, conundrumDifficulty, getConundrums
+    runSolutionMode, runSubwordMode, jumbledness, isConundrum, conundrumDifficulty, getConundrums,
+    randomScramble
   } from './scramble.js';
 
   // ── Option definitions ────────────────────────────────────────────────────
@@ -442,7 +443,7 @@
     { id: '1', label: 'Easy' },
     { id: '2', label: 'Medium' },
     { id: '3', label: 'Hard' },
-    { id: '4', label: 'Very Hard' },
+    { id: '4', label: 'Very Hard', default: false },
   ];
   buildCheckboxes('sw-difficulty', DIFFICULTY_DEF, true);
   buildCheckboxes('batch-difficulty', DIFFICULTY_DEF, true);
@@ -736,7 +737,7 @@
     const table = document.createElement('table');
     const thead = table.createTHead();
     const hrow = thead.insertRow();
-    ['Solution', 'Scramble', 'Difficulty', 'Jumbledness'].forEach(t => {
+    ['Scramble', 'Solution', 'Difficulty', 'Jumbledness'].forEach(t => {
       const th = document.createElement('th'); th.textContent = t; hrow.appendChild(th);
     });
     const tbody = table.createTBody();
@@ -769,16 +770,29 @@
       const pick = candidates.length > 0
         ? candidates[Math.floor(Math.random() * candidates.length)]
         : null;
+      // Fallback: try 10 random scrambles, pick highest jumbledness
+      let usedFallback = false;
+      let finalPick = pick;
+      if (!pick) {
+        let best = null, bestScore = -1;
+        for (let t = 0; t < 10; t++) {
+          const s = randomScramble(word);
+          const score = parseInt(jumbledness(s, word));
+          if (score > bestScore) { bestScore = score; best = s; }
+        }
+        if (best) { finalPick = { scramble: best }; usedFallback = true; }
+      }
       const rowData = {
         word,
-        scramble: pick ? pick.scramble : null,
-        jumb: pick ? jumbledness(pick.scramble, word) : null
+        scramble: finalPick ? finalPick.scramble : null,
+        jumb: finalPick ? jumbledness(finalPick.scramble, word) : null,
+        fallback: usedFallback
       };
       rows.push(rowData);
 
       // Append row to live table
       const tr = tbody.insertRow();
-      tr.insertCell().textContent = word;
+      if (rowData.fallback) tr.style.background = '#fde8e8';
       const scrCell = tr.insertCell();
       if (rowData.scramble) {
         scrCell.textContent = rowData.scramble;
@@ -787,6 +801,7 @@
         scrCell.style.color = '#aaa';
         scrCell.style.fontStyle = 'italic';
       }
+      tr.insertCell().textContent = word;
       const diff = conundrumDifficulty(word);
       const diffCell = tr.insertCell();
       diffCell.textContent = DIFF_LABEL[diff] || '';
@@ -811,7 +826,11 @@
     document.getElementById('batch-cancel').style.display = 'none';
     document.getElementById('batch-progress').style.display = 'none';
     if (!batchCancelled) {
-      document.getElementById('batch-complete').style.display = '';
+      const bc = document.getElementById('batch-complete');
+      bc.style.opacity = '1';
+      bc.style.display = '';
+      setTimeout(() => { bc.style.opacity = '0'; }, 2000);
+      setTimeout(() => { bc.style.display = 'none'; bc.style.opacity = '1'; }, 4000);
     }
   });
 

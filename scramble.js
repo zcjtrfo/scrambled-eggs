@@ -364,6 +364,17 @@ export function jumbledness(scramble, solution) {
   return (100 - shared * 10) + '%';
 }
 
+// ── Random scramble ─────────────────────────────────────────────────────────
+// Returns a random shuffle of the word's letters, guaranteed to differ from the original.
+export function randomScramble(word) {
+  const arr = word.split('');
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.join('');
+}
+
 // ── Subword mode ──────────────────────────────────────────────────────────────
 export function runSubwordMode(subword, restrictions) {
   subword = subword.toUpperCase();
