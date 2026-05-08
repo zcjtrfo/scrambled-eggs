@@ -5,7 +5,12 @@ let FULL_LEXICON = [];   // all words in lexicon.txt
 let FULL_LEXICON_SET = new Set();
 let CONUNDRUMS = [];     // words where conundrum difficulty > 0
 let CONUNDRUM_DIFFICULTY = new Map(); // word -> difficulty value (1-4)
-
+let FORBIDDEN_SET = new Set();       // words marked forbidden (col 4 = 1)
+let LEXICON_CLEAN = [];              // LEXICON without forbidden
+let LEXICON_SET_CLEAN = new Set();
+let FULL_LEXICON_CLEAN = [];         // FULL_LEXICON without forbidden
+let FULL_LEXICON_SET_CLEAN = new Set();
+let CONUNDRUMS_CLEAN = [];           // CONUNDRUMS without forbidden
 export async function loadLexicons(lexiconPath, onProgress) {
   onProgress('Loading lexicon...');
   const text = await fetch(lexiconPath).then(r => r.text());
@@ -16,6 +21,8 @@ export async function loadLexicons(lexiconPath, onProgress) {
     if (!word || !/^[A-Z]+$/.test(word)) continue;
     const common = parts[1].trim() === '1';
     const difficulty = parseInt(parts[2].trim()) || 0;
+    const forbidden = parts[3]?.trim() === '1';
+    if (forbidden) FORBIDDEN_SET.add(word);
     FULL_LEXICON.push(word);
     FULL_LEXICON_SET.add(word);
     if (common) { LEXICON.push(word); LEXICON_SET.add(word); }
@@ -24,6 +31,11 @@ export async function loadLexicons(lexiconPath, onProgress) {
       CONUNDRUM_DIFFICULTY.set(word, difficulty);
     }
   }
+  LEXICON_CLEAN = LEXICON.filter(w => !FORBIDDEN_SET.has(w));
+  LEXICON_SET_CLEAN = new Set(LEXICON_CLEAN);
+  FULL_LEXICON_CLEAN = FULL_LEXICON.filter(w => !FORBIDDEN_SET.has(w));
+  FULL_LEXICON_SET_CLEAN = new Set(FULL_LEXICON_CLEAN);
+  CONUNDRUMS_CLEAN = CONUNDRUMS.filter(w => !FORBIDDEN_SET.has(w));
   onProgress(null);
 }
 
@@ -35,8 +47,8 @@ export function conundrumDifficulty(word) {
   return CONUNDRUM_DIFFICULTY.get(word.toUpperCase()) || 0;
 }
 
-export function getConundrums() {
-  return CONUNDRUMS; // array of all valid conundrum words
+export function getConundrums(avoidProfanity = false) {
+  return avoidProfanity ? CONUNDRUMS_CLEAN : CONUNDRUMS;
 }
 
 // ── Counter helpers ───────────────────────────────────────────────────────────
@@ -300,7 +312,11 @@ export function findSubstituteLetter(word, lexicon) {
 // ── Solution mode: run all active styles ──────────────────────────────────────
 export function runSolutionMode(word, styles, restrictions) {
   word = word.toUpperCase();
-  const lexicon = restrictions.includes('no_obscure_subwords') ? LEXICON : FULL_LEXICON;
+  const noObscure = restrictions.includes('no_obscure_subwords');
+  const noProf   = restrictions.includes('no_profanity');
+  const lexicon = noObscure
+    ? (noProf ? LEXICON_CLEAN       : LEXICON)
+    : (noProf ? FULL_LEXICON_CLEAN  : FULL_LEXICON);
   const sections = [];
 
   if (styles.includes('two_words')) {
@@ -379,11 +395,16 @@ export function randomScramble(word) {
 export function runSubwordMode(subword, restrictions) {
   subword = subword.toUpperCase();
   const subCounter = counter(subword);
-  const lexSet = restrictions.includes('no_obscure_subwords') ? LEXICON_SET : FULL_LEXICON_SET;
+  const noObscure = restrictions.includes('no_obscure_subwords');
+  const noProf   = restrictions.includes('no_profanity');
+  const lexSet = noObscure
+    ? (noProf ? LEXICON_SET_CLEAN      : LEXICON_SET)
+    : (noProf ? FULL_LEXICON_SET_CLEAN : FULL_LEXICON_SET);
+  const conundrumList = noProf ? CONUNDRUMS_CLEAN : CONUNDRUMS;
   const hits = [];
   const seen = new Set();
 
-  for (const w of CONUNDRUMS) {
+  for (const w of conundrumList) {
     const wc = counter(w);
     if (!counterIsSubset(subCounter, wc)) continue;
     const remaining = counterSubtract(wc, subCounter);

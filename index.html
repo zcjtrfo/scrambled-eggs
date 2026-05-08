@@ -357,6 +357,12 @@
       <div class="checkbox-group" id="batch-difficulty"></div>
     </div>
     <div style="margin-top:0.6rem">
+      <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Profanity</div>
+      <div class="checkbox-group">
+        <label><input type="checkbox" id="batch-no-profanity" checked /> Avoid profanity</label>
+      </div>
+    </div>
+    <div style="margin-top:0.6rem">
       <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Obscure subwords</div>
       <div class="checkbox-group">
         <label><input type="radio" name="batch-obscure" value="yes" /> Allow</label>
@@ -392,6 +398,7 @@
 
   const RESTRICTIONS_DEF = [
     { id: 'no_obscure_subwords', label: 'No obscure subwords' },
+    { id: 'no_profanity', label: 'Avoid profanity', default: true },
   ];
 
   // ── Build checkbox groups ─────────────────────────────────────────────────
@@ -695,11 +702,13 @@
     const preferredStyles = getBatchStyles('preferred');
     const fallbackStyles = getBatchStyles('fallback');
     const obscureMode = document.querySelector('input[name="batch-obscure"]:checked').value;
+    const avoidProfanity = document.getElementById('batch-no-profanity').checked;
     const minJumb = parseInt(document.getElementById('batch-jumb').value);
     const allowedDifficulties = new Set(getChecked('batch-difficulty').map(Number));
     const DIFF_LABEL = { 1: '🟩⬜⬜⬜', 2: '🟨🟨⬜⬜', 3: '🟧🟧🟧⬜', 4: '🟥🟥🟥🟥' };
-    const noObscure = ['no_obscure_subwords'];
-    const withObscure = [];
+    const profRestr = avoidProfanity ? ['no_profanity'] : [];
+    const noObscure = ['no_obscure_subwords', ...profRestr];
+    const withObscure = [...profRestr];
     function getCandidates(w, styles, restr) {
       return runSolutionMode(w, styles, restr)
         .flatMap(s => s.rows)
@@ -707,7 +716,7 @@
     }
 
     // Filter conundrums by allowed difficulty, then sample n at random
-    const pool = getConundrums().filter(w => allowedDifficulties.has(conundrumDifficulty(w)));
+    const pool = getConundrums(avoidProfanity).filter(w => allowedDifficulties.has(conundrumDifficulty(w)));
     const sample = [];
     const poolCopy = [...pool];
     for (let i = 0; i < n && poolCopy.length > 0; i++) {
