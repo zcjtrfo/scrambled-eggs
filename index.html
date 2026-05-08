@@ -3,20 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="./scrambled_eggss.png" />
   <title>Scrambled Eggs</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #f5f5f5;
-      color: #222;
+      background: #eef4fb;
+      color: #111;
       min-height: 100vh;
     }
 
     header {
-      background: #1a1a2e;
-      color: #e0e0e0;
+      background: #1a3a5c;
+      color: #fff;
       padding: 1.2rem 2rem;
       font-size: 1.4rem;
       font-weight: 600;
@@ -24,24 +25,26 @@
     }
 
     #status-bar {
-      background: #16213e;
-      color: #aaa;
+      background: #d0e4f5;
+      color: #3a5a7a;
       font-size: 0.8rem;
       padding: 0.3rem 2rem;
       min-height: 1.6rem;
+      border-bottom: 1px solid #b8d4ec;
     }
 
     .tabs {
       display: flex;
       gap: 0;
-      background: #0f3460;
+      background: #b8d4ec;
       padding: 0 2rem;
+      border-bottom: 2px solid #8ab6d8;
     }
 
     .tab-btn {
       background: none;
       border: none;
-      color: #aac4de;
+      color: #2a4a6a;
       padding: 0.75rem 1.5rem;
       cursor: pointer;
       font-size: 0.95rem;
@@ -49,8 +52,8 @@
       transition: color 0.15s, border-color 0.15s;
     }
 
-    .tab-btn:hover { color: #fff; }
-    .tab-btn.active { color: #fff; border-bottom-color: #e94560; }
+    .tab-btn:hover { color: #111; }
+    .tab-btn.active { color: #111; border-bottom-color: #f5c518; }
 
     .tab-content { display: none; padding: 1.5rem 2rem; }
     .tab-content.active { display: flex; flex-direction: column; gap: 1.2rem; }
@@ -60,13 +63,14 @@
       border-radius: 8px;
       padding: 1.2rem 1.5rem;
       box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      border: 1px solid #d0e4f5;
     }
 
     .panel h3 {
       font-size: 0.85rem;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      color: #888;
+      color: #5a7a9a;
       margin-bottom: 0.8rem;
     }
 
@@ -74,14 +78,16 @@
 
     input[type="text"] {
       padding: 0.5rem 0.8rem;
-      border: 1px solid #ccc;
+      border: 1px solid #8ab6d8;
       border-radius: 6px;
       font-size: 1rem;
       width: 220px;
       text-transform: uppercase;
+      background: #f8fbff;
+      color: #111;
     }
 
-    input[type="text"]::placeholder { text-transform: none; }
+    input[type="text"]::placeholder { text-transform: none; color: #aac; }
 
     .checkbox-group {
       display: flex;
@@ -96,21 +102,23 @@
       font-size: 0.9rem;
       cursor: pointer;
       user-select: none;
+      color: #111;
     }
 
     button.run-btn {
-      background: #e94560;
-      color: #fff;
+      background: #f5c518;
+      color: #111;
       border: none;
       border-radius: 6px;
       padding: 0.55rem 1.4rem;
       font-size: 0.95rem;
+      font-weight: 600;
       cursor: pointer;
       transition: background 0.15s;
     }
 
-    button.run-btn:hover { background: #c73652; }
-    button.run-btn:disabled { background: #aaa; cursor: default; }
+    button.run-btn:hover { background: #e0b000; }
+    button.run-btn:disabled { background: #ccc; color: #888; cursor: default; }
 
     .results-area {
       background: #fff;
@@ -118,6 +126,7 @@
       box-shadow: 0 1px 4px rgba(0,0,0,0.08);
       max-height: 60vh;
       overflow-y: auto;
+      border: 1px solid #d0e4f5;
     }
 
     .results-area table {
@@ -129,8 +138,8 @@
     .results-area th {
       position: sticky;
       top: 0;
-      background: #1a1a2e;
-      color: #e0e0e0;
+      background: #1a3a5c;
+      color: #fff;
       padding: 0.55rem 1rem;
       text-align: left;
       font-weight: 500;
@@ -140,25 +149,26 @@
 
     .results-area td {
       padding: 0.4rem 1rem;
-      border-bottom: 1px solid #f0f0f0;
+      border-bottom: 1px solid #e8f0f8;
       font-family: 'Courier New', monospace;
+      color: #111;
     }
 
     .results-area tr:last-child td { border-bottom: none; }
-    .results-area tr:hover td { background: #f9f9f9; }
+    .results-area tr:hover td { background: #f0f7ff; }
 
     .section-header td {
-      background: #f0f4fa;
+      background: #ddeeff;
       font-family: 'Segoe UI', sans-serif;
       font-weight: 600;
-      color: #0f3460;
+      color: #1a3a5c;
       font-size: 0.82rem;
       letter-spacing: 0.04em;
       padding: 0.45rem 1rem;
     }
 
     .count-row td {
-      color: #888;
+      color: #7a9aba;
       font-family: 'Segoe UI', sans-serif;
       font-size: 0.8rem;
       padding: 0.3rem 1rem 0.5rem;
@@ -167,13 +177,13 @@
     .empty-msg {
       padding: 2rem;
       text-align: center;
-      color: #aaa;
+      color: #9ab;
       font-size: 0.9rem;
     }
 
     .badge-coming {
-      background: #f0f0f0;
-      color: #aaa;
+      background: #e8f0f8;
+      color: #9ab;
       border-radius: 4px;
       padding: 0.2rem 0.6rem;
       font-size: 0.8rem;
@@ -189,14 +199,14 @@
 
     .slider-row input[type="range"] {
       width: 160px;
-      accent-color: #e94560;
+      accent-color: #f5c518;
     }
 
     .results-area th.sortable {
       cursor: pointer;
       user-select: none;
     }
-    .results-area th.sortable:hover { background: #2a2a4e; }
+    .results-area th.sortable:hover { background: #2a5a8c; }
     .results-area th.sort-asc::after  { content: ' ▲'; font-size: 0.7em; }
     .results-area th.sort-desc::after { content: ' ▼'; font-size: 0.7em; }
 
@@ -209,7 +219,7 @@
     }
 
     .progress-wrap {
-      background: #e0e0e0;
+      background: #d0e4f5;
       border-radius: 4px;
       height: 8px;
       width: 100%;
@@ -218,13 +228,13 @@
     }
     .progress-bar {
       height: 100%;
-      background: #e94560;
+      background: #f5c518;
       width: 0%;
       transition: width 0.1s linear;
     }
     .progress-label {
       font-size: 0.82rem;
-      color: #888;
+      color: #5a7a9a;
       margin-top: 0.3rem;
     }
 
@@ -240,17 +250,17 @@
     .style-table th:first-child, .style-table td:first-child {
       text-align: left;
       font-weight: normal;
-      color: #333;
+      color: #111;
     }
     .style-table th {
       font-size: 0.75rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: #888;
-      border-bottom: 1px solid #e0e0e0;
+      color: #5a7a9a;
+      border-bottom: 1px solid #d0e4f5;
       font-weight: 500;
     }
-    .style-table tr:not(:last-child) td { border-bottom: 1px solid #f0f0f0; }
+    .style-table tr:not(:last-child) td { border-bottom: 1px solid #e8f0f8; }
   </style>
 </head>
 <body>
@@ -260,15 +270,15 @@
 <div id="status-bar">Loading lexicons…</div>
 
 <nav class="tabs">
-  <button class="tab-btn active" data-tab="subword">Subword</button>
-  <button class="tab-btn" data-tab="solution">Solution</button>
-  <button class="tab-btn" data-tab="batch">Batch</button>
+  <button class="tab-btn active" data-tab="batch">Batch Generator</button>
+  <button class="tab-btn" data-tab="solution">Search by Conundrum</button>
+  <button class="tab-btn" data-tab="subword">Search by Subword</button>
 </nav>
 
 <!-- ── SUBWORD TAB ─────────────────────────────────────────────────────────── -->
-<div id="tab-subword" class="tab-content active">
+<div id="tab-subword" class="tab-content">
   <div class="panel">
-    <h3>Subword</h3>
+    <h3>Search by Subword</h3>
     <div class="row">
       <input type="text" id="sw-input" placeholder="e.g. FROG" maxlength="8" />
       <button class="run-btn" id="sw-run" disabled>Search</button>
@@ -279,7 +289,7 @@
     <div class="checkbox-group" id="sw-restrictions"></div>
     <div style="margin-top:0.6rem">
       <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Min. jumbledness: <strong id="sw-jumb-val">70%</strong></div>
-      <input type="range" id="sw-jumb" min="0" max="100" step="10" value="70" style="accent-color:#e94560;width:160px" />
+      <input type="range" id="sw-jumb" min="0" max="100" step="10" value="70" style="accent-color:#f5c518;width:160px" />
     </div>
     <div style="margin-top:0.6rem">
       <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Difficulty</div>
@@ -313,7 +323,7 @@
     <div class="checkbox-group" id="sol-restrictions"></div>
     <div style="margin-top:0.6rem">
       <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Min. jumbledness: <strong id="sol-jumb-val">70%</strong></div>
-      <input type="range" id="sol-jumb" min="0" max="100" step="10" value="70" style="accent-color:#e94560;width:160px" />
+      <input type="range" id="sol-jumb" min="0" max="100" step="10" value="70" style="accent-color:#f5c518;width:160px" />
     </div>
   </div>
   <div class="results-area" id="sol-results">
@@ -322,7 +332,7 @@
 </div>
 
 <!-- ── BATCH TAB ──────────────────────────────────────────────────────────── -->
-<div id="tab-batch" class="tab-content">
+<div id="tab-batch" class="tab-content active">
   <div class="panel">
     <h3>Generate</h3>
     <div class="row">
@@ -330,7 +340,7 @@
       <input type="number" id="batch-n" value="10" min="1" max="500"
         style="width:80px;text-transform:none" />
       <button class="run-btn" id="batch-run" disabled>Generate</button>
-      <button class="run-btn" id="batch-cancel" style="display:none;background:#555">Cancel</button>
+      <button class="run-btn" id="batch-cancel" style="display:none;background:#5a7a9a;color:#fff">Cancel</button>
       <span id="batch-complete" style="display:none;background:#2a7a3b;color:#fff;padding:0.3rem 0.9rem;border-radius:6px;font-size:0.9rem;font-weight:600;transition:opacity 2s ease">Generation complete!</span>
     </div>
     <div id="batch-progress" style="display:none">
@@ -372,7 +382,7 @@
     </div>
     <div style="margin-top:0.6rem">
       <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Min. jumbledness: <strong id="batch-jumb-val">70%</strong></div>
-      <input type="range" id="batch-jumb" min="0" max="100" step="10" value="70" style="accent-color:#e94560;width:160px" />
+      <input type="range" id="batch-jumb" min="0" max="100" step="10" value="70" style="accent-color:#f5c518;width:160px" />
     </div>
   </div>
   <div class="results-area" id="batch-results">
