@@ -261,13 +261,27 @@
       font-weight: 500;
     }
     .style-table tr:not(:last-child) td { border-bottom: 1px solid #e8f0f8; }
+
+    .panel.collapsible > h3 {
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0;
+    }
+    .panel.collapsible > h3::before { content: '▼'; font-size: 0.7em; transition: transform 0.2s; }
+    .panel.collapsible.collapsed > h3::before { content: '▶'; }
+    .panel-body { margin-top: 0.8rem; }
+    .panel.collapsible.collapsed .panel-body { display: none; }
+    .panel.collapsible.collapsed { cursor: pointer; }
   </style>
 </head>
 <body>
 <div id="ui-overlay"></div>
 
 <header>Scrambled Eggs</header>
-<div id="status-bar">Loading lexicons…</div>
+<div id="status-bar">Loading lexicon…</div>
 
 <nav class="tabs">
   <button class="tab-btn active" data-tab="batch">Batch Generator</button>
@@ -284,16 +298,18 @@
       <button class="run-btn" id="sw-run" disabled>Search</button>
     </div>
   </div>
-  <div class="panel">
+  <div class="panel collapsible collapsed">
     <h3>Restrictions</h3>
-    <div class="checkbox-group" id="sw-restrictions"></div>
-    <div style="margin-top:0.6rem">
-      <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Min. jumbledness: <strong id="sw-jumb-val">70%</strong></div>
-      <input type="range" id="sw-jumb" min="0" max="100" step="10" value="70" style="accent-color:#f5c518;width:160px" />
-    </div>
-    <div style="margin-top:0.6rem">
-      <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Difficulty</div>
-      <div class="checkbox-group" id="sw-difficulty"></div>
+    <div class="panel-body">
+      <div class="checkbox-group" id="sw-restrictions"></div>
+      <div style="margin-top:0.6rem">
+        <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Min. jumbledness: <strong id="sw-jumb-val">70%</strong></div>
+        <input type="range" id="sw-jumb" min="0" max="100" step="10" value="70" style="accent-color:#f5c518;width:160px" />
+      </div>
+      <div style="margin-top:0.6rem">
+        <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Difficulty</div>
+        <div class="checkbox-group" id="sw-difficulty"></div>
+      </div>
     </div>
   </div>
   <div class="results-area" id="sw-results">
@@ -314,16 +330,20 @@
       </div>
     </div>
   </div>
-  <div class="panel">
+  <div class="panel collapsible collapsed">
     <h3>Styles</h3>
-    <div class="checkbox-group" id="sol-styles"></div>
+    <div class="panel-body">
+      <div class="checkbox-group" id="sol-styles"></div>
+    </div>
   </div>
-  <div class="panel">
+  <div class="panel collapsible collapsed">
     <h3>Restrictions</h3>
-    <div class="checkbox-group" id="sol-restrictions"></div>
-    <div style="margin-top:0.6rem">
-      <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Min. jumbledness: <strong id="sol-jumb-val">70%</strong></div>
-      <input type="range" id="sol-jumb" min="0" max="100" step="10" value="70" style="accent-color:#f5c518;width:160px" />
+    <div class="panel-body">
+      <div class="checkbox-group" id="sol-restrictions"></div>
+      <div style="margin-top:0.6rem">
+        <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Min. jumbledness: <strong id="sol-jumb-val">70%</strong></div>
+        <input type="range" id="sol-jumb" min="0" max="100" step="10" value="70" style="accent-color:#f5c518;width:160px" />
+      </div>
     </div>
   </div>
   <div class="results-area" id="sol-results">
@@ -348,8 +368,9 @@
       <div class="progress-label" id="batch-progress-label">0 / 0</div>
     </div>
   </div>
-  <div class="panel">
+  <div class="panel collapsible collapsed">
     <h3>Styles</h3>
+    <div class="panel-body">
     <table class="style-table" id="batch-styles-table">
       <thead><tr>
         <th></th>
@@ -359,31 +380,38 @@
       </tr></thead>
       <tbody></tbody>
     </table>
+    </div>
   </div>
-  <div class="panel">
+  <div class="panel collapsible collapsed">
     <h3>Restrictions</h3>
-    <div style="margin-bottom:0.6rem">
-      <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Difficulty</div>
-      <div class="checkbox-group" id="batch-difficulty"></div>
-    </div>
-    <div style="margin-top:0.6rem">
-      <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Profanity</div>
-      <div class="checkbox-group">
-        <label><input type="checkbox" id="batch-no-profanity" checked /> Avoid profanity</label>
+    <div class="panel-body">
+      <div style="margin-bottom:0.6rem">
+        <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Difficulty</div>
+        <div class="checkbox-group" id="batch-difficulty"></div>
+      </div>
+      <div style="margin-top:0.6rem">
+        <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Profanity</div>
+        <div class="checkbox-group">
+          <label><input type="checkbox" id="batch-no-profanity" checked /> Avoid profanity</label>
+        </div>
+      </div>
+      <div style="margin-top:0.6rem">
+        <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Obscure subwords</div>
+        <div class="checkbox-group">
+          <label><input type="radio" name="batch-obscure" value="yes" /> Allow</label>
+          <label><input type="radio" name="batch-obscure" value="if-required" checked /> Only if required</label>
+          <label><input type="radio" name="batch-obscure" value="never" /> Never allow</label>
+        </div>
+      </div>
+      <div style="margin-top:0.6rem">
+        <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Min. jumbledness: <strong id="batch-jumb-val">70%</strong></div>
+        <input type="range" id="batch-jumb" min="0" max="100" step="10" value="70" style="accent-color:#f5c518;width:160px" />
       </div>
     </div>
-    <div style="margin-top:0.6rem">
-      <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Obscure subwords</div>
-      <div class="checkbox-group">
-        <label><input type="radio" name="batch-obscure" value="yes" /> Allow</label>
-        <label><input type="radio" name="batch-obscure" value="if-required" checked /> Only if required</label>
-        <label><input type="radio" name="batch-obscure" value="never" /> Never allow</label>
-      </div>
-    </div>
-    <div style="margin-top:0.6rem">
-      <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Min. jumbledness: <strong id="batch-jumb-val">70%</strong></div>
-      <input type="range" id="batch-jumb" min="0" max="100" step="10" value="70" style="accent-color:#f5c518;width:160px" />
-    </div>
+  </div>
+  <div id="batch-copy-wrap" style="display:none;text-align:center;margin:0.8rem 0;display:none;gap:0.6rem;justify-content:center">
+    <button class="run-btn" id="batch-copy">Copy to Clipboard</button>
+    <button class="run-btn" id="batch-export">Export to CSV</button>
   </div>
   <div class="results-area" id="batch-results">
     <div class="empty-msg">Set options and press Generate.</div>
@@ -475,6 +503,17 @@
     document.getElementById('batch-jumb-val').textContent = e.target.value + '%';
   });
 
+  // ── Collapsible panels ─────────────────────────────────────────────────────
+  document.querySelectorAll('.panel.collapsible').forEach(panel => {
+    panel.addEventListener('click', e => {
+      if (panel.classList.contains('collapsed')) {
+        panel.classList.remove('collapsed');
+      } else if (!e.target.closest('.panel-body')) {
+        panel.classList.add('collapsed');
+      }
+    });
+  });
+
   // ── Tabs ──────────────────────────────────────────────────────────────────
   for (const btn of document.querySelectorAll('.tab-btn')) {
     btn.addEventListener('click', () => {
@@ -493,7 +532,7 @@
     if (msg) {
       statusBar.textContent = msg;
     } else {
-      statusBar.textContent = 'Lexicons loaded.';
+      statusBar.textContent = 'Lexicon loaded.';
       ready = true;
       document.getElementById('sw-run').disabled = false;
       document.getElementById('sol-run').disabled = false;
@@ -747,6 +786,7 @@
     document.getElementById('batch-cancel').style.display = '';
     document.getElementById('batch-progress').style.display = 'block';
     document.getElementById('batch-complete').style.display = 'none';
+    document.getElementById('batch-copy-wrap').style.display = 'none';
     document.getElementById('batch-results').innerHTML = '';
 
     const bar = document.getElementById('batch-bar');
@@ -850,7 +890,48 @@
       bc.style.display = '';
       setTimeout(() => { bc.style.opacity = '0'; }, 2000);
       setTimeout(() => { bc.style.display = 'none'; bc.style.opacity = '1'; }, 4000);
+      document.getElementById('batch-copy-wrap').style.display = 'flex';
     }
+  });
+
+  document.getElementById('batch-export').addEventListener('click', () => {
+    const rows = document.querySelectorAll('#batch-results tbody tr');
+    const lines = ['Scramble,Solution'];
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td');
+      if (cells.length >= 2) {
+        const scramble = cells[0].textContent.trim();
+        const solution = cells[1].textContent.trim();
+        if (scramble && solution) lines.push('"' + scramble + '","' + solution + '"');
+      }
+    });
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'scrambled_eggs.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // ── Copy to clipboard ──────────────────────────────────────────────────────
+  document.getElementById('batch-copy').addEventListener('click', () => {
+    const rows = document.querySelectorAll('#batch-results tbody tr');
+    const lines = [];
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td');
+      if (cells.length >= 2) {
+        const scramble = cells[0].textContent.trim();
+        const solution = cells[1].textContent.trim();
+        if (scramble && solution) lines.push(scramble + '\t' + solution);
+      }
+    });
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+      const btn = document.getElementById('batch-copy');
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = orig; }, 1500);
+    });
   });
 
   // ── Enter key support ─────────────────────────────────────────────────────
