@@ -477,7 +477,7 @@
       <h3>Modes</h3>
       <dl>
         <dt>Batch Generator</dt>
-        <dd>Generates a random sample of conundrums and their scrambles, filtered by your chosen styles and restrictions. The results can be exported to CSV or copied to the clipboard.</dd>
+        <dd>Generates a random sample of conundrums and their scrambles, filtered by your chosen styles and restrictions. The results can be exported to a .txt file or copied to the clipboard.</dd>
         <dt>Search by Conundrum</dt>
         <dd>Enter a valid conundrum solution and see all possible scrambles for it according to your chosen styles and restrictions.
         </dd>
@@ -674,7 +674,7 @@
     <div id="batch-copy-wrap"
       style="display:none;text-align:center;margin:0.8rem 0;display:none;gap:0.6rem;justify-content:center">
       <button class="run-btn" id="batch-copy">Copy to Clipboard</button>
-      <button class="run-btn" id="batch-export">Export to CSV</button>
+      <button class="run-btn" id="batch-export">Export to .txt</button>
     </div>
     <div class="results-area" id="batch-results">
       <div class="empty-msg">Set options and press Generate.</div>
@@ -1182,20 +1182,20 @@
 
     document.getElementById('batch-export').addEventListener('click', () => {
       const rows = document.querySelectorAll('#batch-results tbody tr');
-      const lines = ['Scramble,Solution'];
+      const lines = [];
       rows.forEach(row => {
         const cells = row.querySelectorAll('td');
         if (cells.length >= 2) {
           const scramble = cells[0].textContent.trim();
           const solution = cells[1].textContent.trim();
-          if (scramble && solution) lines.push('"' + scramble + '","' + solution + '"');
+          if (scramble && solution) lines.push(scramble + ' ' + solution);
         }
       });
-      const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+      const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'scrambled_eggs.csv';
+      a.download = 'scrambled_eggs.txt';
       a.click();
       URL.revokeObjectURL(url);
     });
@@ -1209,7 +1209,7 @@
         if (cells.length >= 2) {
           const scramble = cells[0].textContent.trim();
           const solution = cells[1].textContent.trim();
-          if (scramble && solution) lines.push(scramble + '\t' + solution);
+          if (scramble && solution) lines.push(scramble + ' ' + solution);
         }
       });
       navigator.clipboard.writeText(lines.join('\n')).then(() => {
