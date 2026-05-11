@@ -1,12 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/png" href="./scrambled_eggss.png" />
   <title>Scrambled Eggs</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       font-family: 'Segoe UI', system-ui, sans-serif;
@@ -52,17 +59,31 @@
       transition: color 0.15s, border-color 0.15s;
     }
 
-    .tab-btn:hover { color: #111; }
-    .tab-btn.active { color: #111; border-bottom-color: #f5c518; }
+    .tab-btn:hover {
+      color: #111;
+    }
 
-    .tab-content { display: none; padding: 1.5rem 2rem; }
-    .tab-content.active { display: flex; flex-direction: column; gap: 1.2rem; }
+    .tab-btn.active {
+      color: #111;
+      border-bottom-color: #f5c518;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 1.5rem 2rem;
+    }
+
+    .tab-content.active {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
 
     .panel {
       background: #fff;
       border-radius: 8px;
       padding: 1.2rem 1.5rem;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
       border: 1px solid #d0e4f5;
     }
 
@@ -74,7 +95,12 @@
       margin-bottom: 0.8rem;
     }
 
-    .row { display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap; }
+    .row {
+      display: flex;
+      gap: 0.8rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
 
     input[type="text"] {
       padding: 0.5rem 0.8rem;
@@ -87,7 +113,10 @@
       color: #111;
     }
 
-    input[type="text"]::placeholder { text-transform: none; color: #aac; }
+    input[type="text"]::placeholder {
+      text-transform: none;
+      color: #aac;
+    }
 
     .checkbox-group {
       display: flex;
@@ -117,13 +146,20 @@
       transition: background 0.15s;
     }
 
-    button.run-btn:hover { background: #e0b000; }
-    button.run-btn:disabled { background: #ccc; color: #888; cursor: default; }
+    button.run-btn:hover {
+      background: #e0b000;
+    }
+
+    button.run-btn:disabled {
+      background: #ccc;
+      color: #888;
+      cursor: default;
+    }
 
     .results-area {
       background: #fff;
       border-radius: 8px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
       max-height: 60vh;
       overflow-y: auto;
       border: 1px solid #d0e4f5;
@@ -154,8 +190,13 @@
       color: #111;
     }
 
-    .results-area tr:last-child td { border-bottom: none; }
-    .results-area tr:hover td { background: #f0f7ff; }
+    .results-area tr:last-child td {
+      border-bottom: none;
+    }
+
+    .results-area tr:hover td {
+      background: #f0f7ff;
+    }
 
     .section-header td {
       background: #ddeeff;
@@ -206,17 +247,31 @@
       cursor: pointer;
       user-select: none;
     }
-    .results-area th.sortable:hover { background: #2a5a8c; }
-    .results-area th.sort-asc::after  { content: ' ▲'; font-size: 0.7em; }
-    .results-area th.sort-desc::after { content: ' ▼'; font-size: 0.7em; }
 
-    #batch-cancel { position: relative; z-index: 101; }
+    .results-area th.sortable:hover {
+      background: #2a5a8c;
+    }
+
+    .results-area th.sort-asc::after {
+      content: ' ▲';
+      font-size: 0.7em;
+    }
+
+    .results-area th.sort-desc::after {
+      content: ' ▼';
+      font-size: 0.7em;
+    }
+
+    #batch-cancel {
+      position: relative;
+      z-index: 101;
+    }
 
     #ui-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.25);
+      background: rgba(0, 0, 0, 0.25);
       z-index: 100;
     }
 
@@ -228,12 +283,14 @@
       margin-top: 0.7rem;
       overflow: hidden;
     }
+
     .progress-bar {
       height: 100%;
       background: #f5c518;
       width: 0%;
       transition: width 0.1s linear;
     }
+
     .progress-label {
       font-size: 0.82rem;
       color: #5a7a9a;
@@ -245,15 +302,20 @@
       font-size: 0.88rem;
       width: 100%;
     }
-    .style-table th, .style-table td {
+
+    .style-table th,
+    .style-table td {
       padding: 0.35rem 0.8rem;
       text-align: center;
     }
-    .style-table th:first-child, .style-table td:first-child {
+
+    .style-table th:first-child,
+    .style-table td:first-child {
       text-align: left;
       font-weight: normal;
       color: #111;
     }
+
     .style-table th {
       font-size: 0.75rem;
       text-transform: uppercase;
@@ -262,9 +324,12 @@
       border-bottom: 1px solid #d0e4f5;
       font-weight: 500;
     }
-    .style-table tr:not(:last-child) td { border-bottom: 1px solid #e8f0f8; }
 
-    .panel.collapsible > h3 {
+    .style-table tr:not(:last-child) td {
+      border-bottom: 1px solid #e8f0f8;
+    }
+
+    .panel.collapsible>h3 {
       cursor: pointer;
       user-select: none;
       display: flex;
@@ -272,693 +337,897 @@
       gap: 0.5rem;
       margin-bottom: 0;
     }
-    .panel.collapsible > h3::before { content: '▼'; font-size: 0.7em; transition: transform 0.2s; }
-    .panel.collapsible.collapsed > h3::before { content: '▶'; }
-    .panel-body { margin-top: 0.8rem; }
-    .panel.collapsible.collapsed .panel-body { display: none; }
-    .panel.collapsible.collapsed { cursor: pointer; }
+
+    .panel.collapsible>h3::before {
+      content: '▼';
+      font-size: 0.7em;
+      transition: transform 0.2s;
+    }
+
+    .panel.collapsible.collapsed>h3::before {
+      content: '▶';
+    }
+
+    .panel-body {
+      margin-top: 0.8rem;
+    }
+
+    .panel.collapsible.collapsed .panel-body {
+      display: none;
+    }
+
+    .panel.collapsible.collapsed {
+      cursor: pointer;
+    }
+
+    #help-btn {
+      background: none;
+      border: 2px solid #8ab6d8;
+      border-radius: 50%;
+      width: 2rem;
+      height: 2rem;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #2a4a6a;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      align-self: center;
+      transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+      margin-left: 0.6rem;
+    }
+
+    #help-btn:hover {
+      background: #f5c518;
+      color: #111;
+      border-color: #f5c518;
+    }
+
+    #help-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0, 0, 0, 0.45);
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2.5rem 1rem;
+      overflow-y: auto;
+    }
+
+    #help-modal.open {
+      display: flex;
+    }
+
+    #help-box {
+      background: #fff;
+      border-radius: 10px;
+      padding: 2rem 2.2rem;
+      max-width: 640px;
+      width: 100%;
+      position: relative;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
+      border: 1px solid #d0e4f5;
+    }
+
+    #help-box h2 {
+      font-size: 1.1rem;
+      color: #1a3a5c;
+      margin-bottom: 1.2rem;
+      letter-spacing: 0.04em;
+    }
+
+    #help-box h3 {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #5a7a9a;
+      margin: 1.2rem 0 0.5rem;
+      border-bottom: 1px solid #e8f0f8;
+      padding-bottom: 0.3rem;
+    }
+
+    #help-box dl {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.35rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    #help-box dt {
+      font-weight: 600;
+      color: #1a3a5c;
+      white-space: nowrap;
+    }
+
+    #help-box dd {
+      color: #333;
+      margin: 0;
+    }
+
+    #help-close {
+      position: absolute;
+      top: 0.8rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: #5a7a9a;
+      line-height: 1;
+    }
+
+    #help-close:hover {
+      color: #111;
+    }
   </style>
 </head>
+
 <body>
-<div id="ui-overlay"></div>
+  <div id="ui-overlay"></div>
 
-<header>Scrambled Eggs</header>
-<div id="status-bar">Loading lexicon…</div>
+  <!-- ── HELP MODAL ─────────────────────────────────────────────────────────── -->
+  <div id="help-modal" role="dialog" aria-modal="true" aria-label="Help">
+    <div id="help-box">
+      <button id="help-close" aria-label="Close help">&times;</button>
+      <h2>Using Scrambled Eggs</h2>
 
-<nav class="tabs">
-  <button class="tab-btn active" data-tab="batch">Batch Generator</button>
-  <button class="tab-btn" data-tab="solution">Search by Conundrum</button>
-  <button class="tab-btn" data-tab="subword">Search by Subword</button>
-</nav>
+      <h3>Modes</h3>
+      <dl>
+        <dt>Batch Generator</dt>
+        <dd>Generates a random sample of conundrums and their scrambles, filtered by your chosen styles and restrictions. The results can be exported to CSV or copied to the clipboard.</dd>
+        <dt>Search by Conundrum</dt>
+        <dd>Enter a valid conundrum solution and see all possible scrambles for it according to your chosen styles and restrictions.
+        </dd>
+        <dt>Search by Subword</dt>
+        <dd>Enter any 3-8 letters and find all conundrums that contain those letters. Scrambles where
+          the remaining letters form a word are highlighted.
+        </dd>
+      </dl>
 
-<!-- ── SUBWORD TAB ─────────────────────────────────────────────────────────── -->
-<div id="tab-subword" class="tab-content">
-  <div class="panel">
-    <h3>Search by Subword</h3>
-    <div class="row">
-      <input type="text" id="sw-input" placeholder="e.g. FROG" maxlength="8" />
-      <button class="run-btn" id="sw-run" disabled>Search</button>
-    </div>
-  </div>
-  <div class="panel collapsible collapsed">
-    <h3>Restrictions</h3>
-    <div class="panel-body">
-      <div class="checkbox-group" id="sw-restrictions"></div>
-      <div style="margin-top:0.6rem">
-        <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Min. jumbledness: <strong id="sw-jumb-val">70%</strong></div>
-        <input type="range" id="sw-jumb" min="0" max="100" step="10" value="70" style="accent-color:#f5c518;width:160px" />
-      </div>
-      <div style="margin-top:0.6rem">
-        <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Difficulty</div>
-        <div class="checkbox-group" id="sw-difficulty"></div>
-      </div>
-    </div>
-  </div>
-  <div class="results-area" id="sw-results">
-    <div class="empty-msg">Enter a subword and press Search.</div>
-  </div>
-</div>
+      <h3>Styles</h3>
+      <dl>
+        <dt>Two words</dt>
+        <dd>The 9 letters are split into two words placed side by side, e.g. <em>BREATHING</em> gives
+          <em>NIGHTBEAR</em>.</dd>
+        <dt>Substitute letter</dt>
+        <dd>Start from a 9-letter word, swap one letter for another of the same type (vowel↔vowel or
+          consonant↔consonant) to reach the solution's letters, e.g. <em>MAGNITUDE</em> gives
+          <em>AUGMINTED</em>.</dd>
+        <dt>Stem</dt>
+        <dd>An 8-letter word with one extra letter appended, e.g. <em>POLICEMAN</em> gives
+          <em>COMPLAINE</em>.
+        </dd>
+        <dt>Double stem</dt>
+        <dd>A 7-letter word with two extra letters appended, e.g. <em>QUAVERING</em> gives
+          <em>VINEGARQU</em>.</dd>
+        <dt>Three words</dt>
+        <dd>The 9 letters are split into three words, e.g. <em>COGITATED</em> gives
+          <em>TIECATDOG</em>.</dd>
+      </dl>
 
-<!-- ── SOLUTION TAB ───────────────────────────────────────────────────────── -->
-<div id="tab-solution" class="tab-content">
-  <div class="panel">
-    <h3>Solution word</h3>
-    <div class="row">
-      <input type="text" id="sol-input" placeholder="e.g. MAGNITUDE" maxlength="9" />
-      <button class="run-btn" id="sol-run" disabled>Generate</button>
-      <div id="sol-warning" style="display:none; align-items:center; gap:0.4rem; background:#fffbea; border:1px solid #f5c518; border-radius:6px; padding:0.4rem 0.8rem; font-size:0.88rem; color:#7a5c00;">
-        <span style="font-size:1.1rem">&#9888;</span>
-        <span></span>
-      </div>
+      <h3>Restrictions</h3>
+      <dl>
+        <dt>Avoid profanity</dt>
+        <dd>Excludes words flagged as profanity/offensive from both the conundrum pool and subword lookup.</dd>
+        <dt>Difficulty</dt>
+        <dd>Filters results to only include conundrums rated at the approximate difficulty levels (🟩 Easy → 🟨 Medium → 🟧 Hard → 🟥 Very Hard).
+        </dd>
+        <dt>Obscure subwords </dt>
+        <dd>Determines whether obscure subwords are allowed when constructing scrambles. <em>Allow</em> - obscure subwords are permitted freely. <em>Only if required</em> - tries without obscure words first, falls
+          back if needed. <em>Never allow</em> - obscure subwords are always excluded. This setting doesn't affect the obscurity of the conundrum solution. </dd>
+        <dt>Min. jumbledness</dt>
+        <dd>Jumbledness measures how different the scramble looks from the solution (0–100%). Higher values mean fewer
+          shared adjacent letter-pairs with the solution. Note that reducing this value below 70% may make the scramble look very similar to the solution.</dd>
+      </dl>
     </div>
   </div>
-  <div class="panel collapsible collapsed">
-    <h3>Styles</h3>
-    <div class="panel-body">
-      <div class="checkbox-group" id="sol-styles"></div>
-    </div>
-  </div>
-  <div class="panel collapsible collapsed">
-    <h3>Restrictions</h3>
-    <div class="panel-body">
-      <div class="checkbox-group" id="sol-restrictions"></div>
-      <div style="margin-top:0.6rem">
-        <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Min. jumbledness: <strong id="sol-jumb-val">70%</strong></div>
-        <input type="range" id="sol-jumb" min="0" max="100" step="10" value="70" style="accent-color:#f5c518;width:160px" />
-      </div>
-    </div>
-  </div>
-  <div class="results-area" id="sol-results">
-    <div class="empty-msg">Enter a 9-letter solution and press Generate.</div>
-  </div>
-</div>
 
-<!-- ── BATCH TAB ──────────────────────────────────────────────────────────── -->
-<div id="tab-batch" class="tab-content active">
-  <div class="panel">
-    <h3>Generate</h3>
-    <div class="row">
-      <label style="font-size:0.9rem">Number of conundrums:</label>
-      <input type="number" id="batch-n" value="10" min="1" max="500"
-        style="width:80px;text-transform:none" />
-      <button class="run-btn" id="batch-run" disabled>Generate</button>
-      <button class="run-btn" id="batch-cancel" style="display:none;background:#5a7a9a;color:#fff">Cancel</button>
-      <span id="batch-complete" style="display:none;background:#2a7a3b;color:#fff;padding:0.3rem 0.9rem;border-radius:6px;font-size:0.9rem;font-weight:600;transition:opacity 2s ease">Generation complete!</span>
-    </div>
-    <div id="batch-progress" style="display:none">
-      <div class="progress-wrap"><div class="progress-bar" id="batch-bar"></div></div>
-      <div class="progress-label" id="batch-progress-label">0 / 0</div>
-    </div>
-  </div>
-  <div class="panel collapsible collapsed">
-    <h3>Styles</h3>
-    <div class="panel-body">
-    <table class="style-table" id="batch-styles-table">
-      <thead><tr>
-        <th></th>
-        <th>Preferred</th>
-        <th>Allow if required</th>
-        <th>Never allow</th>
-      </tr></thead>
-      <tbody></tbody>
-    </table>
-    </div>
-  </div>
-  <div class="panel collapsible collapsed">
-    <h3>Restrictions</h3>
-    <div class="panel-body">
-      <div style="margin-bottom:0.6rem">
-        <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Difficulty</div>
-        <div class="checkbox-group" id="batch-difficulty"></div>
+  <header>Scrambled Eggs</header>
+  <div id="status-bar">Loading lexicon…</div>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="batch">Batch Generator</button>
+    <button class="tab-btn" data-tab="solution">Search by Conundrum</button>
+    <button class="tab-btn" data-tab="subword">Search by Subword</button>
+    <button id="help-btn" aria-label="Help">?</button>
+  </nav>
+
+  <!-- ── SUBWORD TAB ─────────────────────────────────────────────────────────── -->
+  <div id="tab-subword" class="tab-content">
+    <div class="panel">
+      <h3>Search by Subword</h3>
+      <div class="row">
+        <input type="text" id="sw-input" placeholder="e.g. FROG" maxlength="8" />
+        <button class="run-btn" id="sw-run" disabled>Search</button>
       </div>
-      <div style="margin-top:0.6rem">
-        <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Profanity</div>
-        <div class="checkbox-group">
-          <label><input type="checkbox" id="batch-no-profanity" checked /> Avoid profanity</label>
+    </div>
+    <div class="panel collapsible collapsed">
+      <h3>Restrictions</h3>
+      <div class="panel-body">
+        <div class="checkbox-group" id="sw-restrictions"></div>
+        <div style="margin-top:0.6rem">
+          <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">
+            Min. jumbledness: <strong id="sw-jumb-val">70%</strong></div>
+          <input type="range" id="sw-jumb" min="0" max="100" step="10" value="70"
+            style="accent-color:#f5c518;width:160px" />
+        </div>
+        <div style="margin-top:0.6rem">
+          <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">
+            Difficulty</div>
+          <div class="checkbox-group" id="sw-difficulty"></div>
         </div>
       </div>
-      <div style="margin-top:0.6rem">
-        <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Obscure subwords</div>
-        <div class="checkbox-group">
-          <label><input type="radio" name="batch-obscure" value="yes" /> Allow</label>
-          <label><input type="radio" name="batch-obscure" value="if-required" checked /> Only if required</label>
-          <label><input type="radio" name="batch-obscure" value="never" /> Never allow</label>
-        </div>
-      </div>
-      <div style="margin-top:0.6rem">
-        <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Min. jumbledness: <strong id="batch-jumb-val">70%</strong></div>
-        <input type="range" id="batch-jumb" min="0" max="100" step="10" value="70" style="accent-color:#f5c518;width:160px" />
-      </div>
+    </div>
+    <div class="results-area" id="sw-results">
+      <div class="empty-msg">Enter a subword and press Search.</div>
     </div>
   </div>
-  <div id="batch-copy-wrap" style="display:none;text-align:center;margin:0.8rem 0;display:none;gap:0.6rem;justify-content:center">
-    <button class="run-btn" id="batch-copy">Copy to Clipboard</button>
-    <button class="run-btn" id="batch-export">Export to CSV</button>
+
+  <!-- ── SOLUTION TAB ───────────────────────────────────────────────────────── -->
+  <div id="tab-solution" class="tab-content">
+    <div class="panel">
+      <h3>Solution word</h3>
+      <div class="row">
+        <input type="text" id="sol-input" placeholder="e.g. BREATHING" maxlength="9" />
+        <button class="run-btn" id="sol-run" disabled>Generate</button>
+        <div id="sol-warning"
+          style="display:none; align-items:center; gap:0.4rem; background:#fffbea; border:1px solid #f5c518; border-radius:6px; padding:0.4rem 0.8rem; font-size:0.88rem; color:#7a5c00;">
+          <span style="font-size:1.1rem">&#9888;</span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+    <div class="panel collapsible collapsed">
+      <h3>Styles</h3>
+      <div class="panel-body">
+        <div class="checkbox-group" id="sol-styles"></div>
+      </div>
+    </div>
+    <div class="panel collapsible collapsed">
+      <h3>Restrictions</h3>
+      <div class="panel-body">
+        <div class="checkbox-group" id="sol-restrictions"></div>
+        <div style="margin-top:0.6rem">
+          <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">
+            Min. jumbledness: <strong id="sol-jumb-val">70%</strong></div>
+          <input type="range" id="sol-jumb" min="0" max="100" step="10" value="70"
+            style="accent-color:#f5c518;width:160px" />
+        </div>
+      </div>
+    </div>
+    <div class="results-area" id="sol-results">
+      <div class="empty-msg">Enter a 9-letter solution and press Generate.</div>
+    </div>
   </div>
-  <div class="results-area" id="batch-results">
-    <div class="empty-msg">Set options and press Generate.</div>
+
+  <!-- ── BATCH TAB ──────────────────────────────────────────────────────────── -->
+  <div id="tab-batch" class="tab-content active">
+    <div class="panel">
+      <h3>Generate</h3>
+      <div class="row">
+        <label style="font-size:0.9rem">Number of conundrums:</label>
+        <input type="number" id="batch-n" value="10" min="1" max="500" style="width:80px;text-transform:none" />
+        <button class="run-btn" id="batch-run" disabled>Generate</button>
+        <button class="run-btn" id="batch-cancel" style="display:none;background:#5a7a9a;color:#fff">Cancel</button>
+        <span id="batch-complete"
+          style="display:none;background:#2a7a3b;color:#fff;padding:0.3rem 0.9rem;border-radius:6px;font-size:0.9rem;font-weight:600;transition:opacity 2s ease">Generation
+          complete!</span>
+      </div>
+      <div id="batch-progress" style="display:none">
+        <div class="progress-wrap">
+          <div class="progress-bar" id="batch-bar"></div>
+        </div>
+        <div class="progress-label" id="batch-progress-label">0 / 0</div>
+      </div>
+    </div>
+    <div class="panel collapsible collapsed">
+      <h3>Styles</h3>
+      <div class="panel-body">
+        <table class="style-table" id="batch-styles-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Preferred</th>
+              <th>Allow if required</th>
+              <th>Never allow</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel collapsible collapsed">
+      <h3>Restrictions</h3>
+      <div class="panel-body">
+        <div style="margin-bottom:0.6rem">
+          <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">
+            Difficulty</div>
+          <div class="checkbox-group" id="batch-difficulty"></div>
+        </div>
+        <div style="margin-top:0.6rem">
+          <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">
+            Profanity</div>
+          <div class="checkbox-group">
+            <label><input type="checkbox" id="batch-no-profanity" checked /> Avoid profanity</label>
+          </div>
+        </div>
+        <div style="margin-top:0.6rem">
+          <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">
+            Obscure subwords</div>
+          <div class="checkbox-group">
+            <label><input type="radio" name="batch-obscure" value="yes" /> Allow</label>
+            <label><input type="radio" name="batch-obscure" value="if-required" checked /> Only if required</label>
+            <label><input type="radio" name="batch-obscure" value="never" /> Never allow</label>
+          </div>
+        </div>
+        <div style="margin-top:0.6rem">
+          <div style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">
+            Min. jumbledness: <strong id="batch-jumb-val">70%</strong></div>
+          <input type="range" id="batch-jumb" min="0" max="100" step="10" value="70"
+            style="accent-color:#f5c518;width:160px" />
+        </div>
+      </div>
+    </div>
+    <div id="batch-copy-wrap"
+      style="display:none;text-align:center;margin:0.8rem 0;display:none;gap:0.6rem;justify-content:center">
+      <button class="run-btn" id="batch-copy">Copy to Clipboard</button>
+      <button class="run-btn" id="batch-export">Export to CSV</button>
+    </div>
+    <div class="results-area" id="batch-results">
+      <div class="empty-msg">Set options and press Generate.</div>
+    </div>
   </div>
-</div>
 
-<script type="module">
-  import {
-    loadLexicons, applyRestrictions,
-    runSolutionMode, runSubwordMode, jumbledness, isConundrum, conundrumDifficulty, getConundrums,
-    randomScramble
-  } from './scramble.js';
+  <script type="module">
+    import {
+      loadLexicons, applyRestrictions,
+      runSolutionMode, runSubwordMode, jumbledness, isConundrum, conundrumDifficulty, getConundrums,
+      randomScramble
+    } from './scramble.js';
 
-  // ── Option definitions ────────────────────────────────────────────────────
-  const STYLES_DEF = [
-    { id: 'two_words',         label: 'Two words',         default: true },
-    { id: 'substitute_letter', label: 'Substitute letter', default: true },
-    { id: 'stem',              label: 'Stem',              default: true },
-    { id: 'double_stem',       label: 'Double stem',       default: true },
-    { id: 'three_words',       label: 'Three words',       default: false },
-  ];
+    // ── Option definitions ────────────────────────────────────────────────────
+    const STYLES_DEF = [
+      { id: 'two_words', label: 'Two words', default: true },
+      { id: 'substitute_letter', label: 'Substitute letter', default: true },
+      { id: 'stem', label: 'Stem', default: true },
+      { id: 'double_stem', label: 'Double stem', default: true },
+      { id: 'three_words', label: 'Three words', default: false },
+    ];
 
-  const RESTRICTIONS_DEF = [
-    { id: 'no_obscure_subwords', label: 'No obscure subwords' },
-    { id: 'no_profanity', label: 'Avoid profanity', default: true },
-  ];
+    const RESTRICTIONS_DEF = [
+      { id: 'no_obscure_subwords', label: 'No obscure subwords' },
+      { id: 'no_profanity', label: 'Avoid profanity', default: true },
+    ];
 
-  // ── Build checkbox groups ─────────────────────────────────────────────────
-  function buildCheckboxes(containerId, defs, defaultChecked = true) {
-    const container = document.getElementById(containerId);
-    for (const { id, label, default: def } of defs) {
-      const lbl = document.createElement('label');
-      const cb = document.createElement('input');
-      cb.type = 'checkbox';
-      cb.value = id;
-      cb.checked = (def !== undefined ? def : defaultChecked);
-      lbl.append(cb, label);
-      container.appendChild(lbl);
+    // ── Build checkbox groups ─────────────────────────────────────────────────
+    function buildCheckboxes(containerId, defs, defaultChecked = true) {
+      const container = document.getElementById(containerId);
+      for (const { id, label, default: def } of defs) {
+        const lbl = document.createElement('label');
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.value = id;
+        cb.checked = (def !== undefined ? def : defaultChecked);
+        lbl.append(cb, label);
+        container.appendChild(lbl);
+      }
     }
-  }
 
-  function getChecked(containerId) {
-    return [...document.querySelectorAll(`#${containerId} input[type=checkbox]:checked`)]
-      .map(cb => cb.value);
-  }
+    function getChecked(containerId) {
+      return [...document.querySelectorAll(`#${containerId} input[type=checkbox]:checked`)]
+        .map(cb => cb.value);
+    }
 
-  buildCheckboxes('sol-styles', STYLES_DEF, true);
-  buildCheckboxes('sol-restrictions', RESTRICTIONS_DEF, true);
-  buildCheckboxes('sw-restrictions', RESTRICTIONS_DEF, true);
-  // ── Batch style table ─────────────────────────────────────────────────────
-  const STYLE_DEFAULT_BUCKET = { two_words: 'preferred', substitute_letter: 'preferred', stem: 'preferred', double_stem: 'preferred', three_words: 'fallback' };
-  (function initStyleTable() {
-    const tbody = document.querySelector('#batch-styles-table tbody');
-    STYLES_DEF.forEach(({ id, label }) => {
-      const def = STYLE_DEFAULT_BUCKET[id] || 'preferred';
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
+    buildCheckboxes('sol-styles', STYLES_DEF, true);
+    buildCheckboxes('sol-restrictions', RESTRICTIONS_DEF, true);
+    buildCheckboxes('sw-restrictions', RESTRICTIONS_DEF, true);
+    // ── Batch style table ─────────────────────────────────────────────────────
+    const STYLE_DEFAULT_BUCKET = { two_words: 'preferred', substitute_letter: 'preferred', stem: 'preferred', double_stem: 'preferred', three_words: 'fallback' };
+    (function initStyleTable() {
+      const tbody = document.querySelector('#batch-styles-table tbody');
+      STYLES_DEF.forEach(({ id, label }) => {
+        const def = STYLE_DEFAULT_BUCKET[id] || 'preferred';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
         <td>${label}</td>
         <td><input type="radio" name="bstyle-${id}" value="preferred" ${def === 'preferred' ? 'checked' : ''} /></td>
-        <td><input type="radio" name="bstyle-${id}" value="fallback"  ${def === 'fallback'  ? 'checked' : ''} /></td>
-        <td><input type="radio" name="bstyle-${id}" value="never"     ${def === 'never'     ? 'checked' : ''} /></td>
+        <td><input type="radio" name="bstyle-${id}" value="fallback"  ${def === 'fallback' ? 'checked' : ''} /></td>
+        <td><input type="radio" name="bstyle-${id}" value="never"     ${def === 'never' ? 'checked' : ''} /></td>
       `;
-      tbody.appendChild(tr);
-    });
-  })();
+        tbody.appendChild(tr);
+      });
+    })();
 
-  function getBatchStyles(bucket) {
-    return STYLES_DEF
-      .filter(({ id }) => document.querySelector(`input[name="bstyle-${id}"]:checked`)?.value === bucket)
-      .map(({ id }) => id);
-  }
-
-  const DIFFICULTY_DEF = [
-    { id: '1', label: 'Easy' },
-    { id: '2', label: 'Medium' },
-    { id: '3', label: 'Hard' },
-    { id: '4', label: 'Very Hard', default: false },
-  ];
-  buildCheckboxes('sw-difficulty', DIFFICULTY_DEF, true);
-  buildCheckboxes('batch-difficulty', DIFFICULTY_DEF, true);
-
-  document.getElementById('sol-jumb').addEventListener('input', e => {
-    document.getElementById('sol-jumb-val').textContent = e.target.value + '%';
-  });
-  document.getElementById('sw-jumb').addEventListener('input', e => {
-    document.getElementById('sw-jumb-val').textContent = e.target.value + '%';
-  });
-  document.getElementById('batch-jumb').addEventListener('input', e => {
-    document.getElementById('batch-jumb-val').textContent = e.target.value + '%';
-  });
-
-  // ── Collapsible panels ─────────────────────────────────────────────────────
-  document.querySelectorAll('.panel.collapsible').forEach(panel => {
-    panel.addEventListener('click', e => {
-      if (panel.classList.contains('collapsed')) {
-        panel.classList.remove('collapsed');
-      } else if (!e.target.closest('.panel-body')) {
-        panel.classList.add('collapsed');
-      }
-    });
-  });
-
-  // ── Tabs ──────────────────────────────────────────────────────────────────
-  for (const btn of document.querySelectorAll('.tab-btn')) {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-    });
-  }
-
-  // ── Load lexicons ─────────────────────────────────────────────────────────
-  const statusBar = document.getElementById('status-bar');
-  let ready = false;
-
-  await loadLexicons('./lexicon.txt', msg => {
-    if (msg) {
-      statusBar.textContent = msg;
-    } else {
-      statusBar.textContent = 'Lexicon loaded.';
-      ready = true;
-      document.getElementById('sw-run').disabled = false;
-      document.getElementById('sol-run').disabled = false;
-      document.getElementById('batch-run').disabled = false;
+    function getBatchStyles(bucket) {
+      return STYLES_DEF
+        .filter(({ id }) => document.querySelector(`input[name="bstyle-${id}"]:checked`)?.value === bucket)
+        .map(({ id }) => id);
     }
-  });
 
-  // ── Render helpers ────────────────────────────────────────────────────────
-  function renderTable(containerId, buildFn) {
-    const el = document.getElementById(containerId);
-    const table = document.createElement('table');
-    buildFn(table);
-    el.innerHTML = '';
-    el.appendChild(table);
-  }
+    const DIFFICULTY_DEF = [
+      { id: '1', label: 'Easy' },
+      { id: '2', label: 'Medium' },
+      { id: '3', label: 'Hard' },
+      { id: '4', label: 'Very Hard', default: false },
+    ];
+    buildCheckboxes('sw-difficulty', DIFFICULTY_DEF, true);
+    buildCheckboxes('batch-difficulty', DIFFICULTY_DEF, true);
 
-  function addSectionHeader(tbody, text, colspan) {
-    const tr = document.createElement('tr');
-    tr.className = 'section-header';
-    const td = document.createElement('td');
-    td.colSpan = colspan;
-    td.textContent = text;
-    tr.appendChild(td);
-    tbody.appendChild(tr);
-  }
+    document.getElementById('sol-jumb').addEventListener('input', e => {
+      document.getElementById('sol-jumb-val').textContent = e.target.value + '%';
+    });
+    document.getElementById('sw-jumb').addEventListener('input', e => {
+      document.getElementById('sw-jumb-val').textContent = e.target.value + '%';
+    });
+    document.getElementById('batch-jumb').addEventListener('input', e => {
+      document.getElementById('batch-jumb-val').textContent = e.target.value + '%';
+    });
 
-  function addCountRow(tbody, count, colspan) {
-    const tr = document.createElement('tr');
-    tr.className = 'count-row';
-    const td = document.createElement('td');
-    td.colSpan = colspan;
-    td.textContent = `${count} result${count !== 1 ? 's' : ''}`;
-    tr.appendChild(td);
-    tbody.appendChild(tr);
-  }
+    // ── Help modal ─────────────────────────────────────────────────────────────
+    const helpModal = document.getElementById('help-modal');
+    document.getElementById('help-btn').addEventListener('click', () => helpModal.classList.add('open'));
+    document.getElementById('help-close').addEventListener('click', () => helpModal.classList.remove('open'));
+    helpModal.addEventListener('click', e => { if (e.target === helpModal) helpModal.classList.remove('open'); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') helpModal.classList.remove('open'); });
 
-  // ── Sortable table helper ─────────────────────────────────────────────────
-  function makeSortable(table, defaultDescCols = []) {
-    const headers = [...table.querySelectorAll('th')];
-    const sortState = {};
-    headers.forEach((th, colIdx) => {
-      th.classList.add('sortable');
-      sortState[colIdx] = null;
-      th.addEventListener('click', () => {
-        const tbody = table.tBodies[0];
-        const isDesc = defaultDescCols.includes(colIdx)
-          ? sortState[colIdx] !== 'desc'
-          : sortState[colIdx] === 'asc';
-        // Group rows into sections, preserving header/count rows in place
-        const allRows = [...tbody.rows];
-        const sections = [];
-        let current = null;
-        for (const r of allRows) {
-          if (r.classList.contains('section-header')) {
-            current = { header: r, data: [], count: null };
-            sections.push(current);
-          } else if (r.classList.contains('count-row')) {
-            if (current) current.count = r;
-          } else {
-            if (!current) { current = { header: null, data: [], count: null }; sections.push(current); }
-            current.data.push(r);
-          }
+    // ── Collapsible panels ─────────────────────────────────────────────────────
+    document.querySelectorAll('.panel.collapsible').forEach(panel => {
+      panel.addEventListener('click', e => {
+        if (panel.classList.contains('collapsed')) {
+          panel.classList.remove('collapsed');
+        } else if (!e.target.closest('.panel-body')) {
+          panel.classList.add('collapsed');
         }
-        // Sort data rows within each section
-        for (const sec of sections) {
-          sec.data.sort((a, b) => {
-            const ac = a.cells[colIdx];
-            const bc = b.cells[colIdx];
-            const avRaw = ac?.dataset.rank ?? ac?.textContent.trim() ?? '';
-            const bvRaw = bc?.dataset.rank ?? bc?.textContent.trim() ?? '';
-            // 'not found' / empty sorts after Z (sentinel \uffff)
-            const av = (avRaw === 'not found' || avRaw === '') ? '\uffff' : avRaw;
-            const bv = (bvRaw === 'not found' || bvRaw === '') ? '\uffff' : bvRaw;
-            const an = parseFloat(av);
-            const bn = parseFloat(bv);
-            const cmp = isNaN(an) || isNaN(bn) ? av.localeCompare(bv) : an - bn;
-            return isDesc ? -cmp : cmp;
-          });
-        }
-        // Re-append in order: header, data rows, count
-        for (const sec of sections) {
-          if (sec.header) tbody.appendChild(sec.header);
-          sec.data.forEach(r => tbody.appendChild(r));
-          if (sec.count) tbody.appendChild(sec.count);
-        }
-        headers.forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
-        th.classList.add(isDesc ? 'sort-desc' : 'sort-asc');
-        sortState[colIdx] = isDesc ? 'desc' : 'asc';
       });
     });
-  }
 
-  // ── Solution mode ─────────────────────────────────────────────────────────
-  document.getElementById('sol-run').addEventListener('click', () => {
-    const word = document.getElementById('sol-input').value.trim().toUpperCase();
-    if (!word || word.length !== 9) {
-      document.getElementById('sol-results').innerHTML =
-        '<div class="empty-msg">Please enter exactly 9 letters.</div>';
-      return;
-    }
-    const warningEl = document.getElementById('sol-warning');
-    if (!isConundrum(word)) {
-      warningEl.style.display = 'flex';
-      warningEl.querySelector('span').textContent = `${word} is not a valid conundrum!`;
-    } else {
-      warningEl.style.display = 'none';
-    }
-    const styles = getChecked('sol-styles');
-    const restrictions = getChecked('sol-restrictions');
-    const sections = runSolutionMode(word, styles, restrictions);
-    const minJumb = parseInt(document.getElementById('sol-jumb').value);
-    for (const section of sections) {
-      section.rows = section.rows.filter(row => parseInt(jumbledness(row.scramble, word)) >= minJumb);
-    }
-    const total = sections.reduce((s, sec) => s + sec.rows.length, 0);
-
-    if (total === 0) {
-      document.getElementById('sol-results').innerHTML =
-        '<div class="empty-msg">No results found.</div>';
-      return;
+    // ── Tabs ──────────────────────────────────────────────────────────────────
+    for (const btn of document.querySelectorAll('.tab-btn')) {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      });
     }
 
-    renderTable('sol-results', table => {
-      const hasDetail = sections.some(s => s.rows.some(r => r.detail));
-      const colspan = hasDetail ? 3 : 2;
-      const thead = table.createTHead();
-      const hrow = thead.insertRow();
-      const th1 = document.createElement('th'); th1.textContent = 'Scramble'; hrow.appendChild(th1);
-      if (hasDetail) {
-        const th2 = document.createElement('th'); th2.textContent = 'Detail'; hrow.appendChild(th2);
+    // ── Load lexicons ─────────────────────────────────────────────────────────
+    const statusBar = document.getElementById('status-bar');
+    let ready = false;
+
+    await loadLexicons('./lexicon.txt', msg => {
+      if (msg) {
+        statusBar.textContent = msg;
+      } else {
+        statusBar.textContent = 'Lexicon loaded.';
+        ready = true;
+        document.getElementById('sw-run').disabled = false;
+        document.getElementById('sol-run').disabled = false;
+        document.getElementById('batch-run').disabled = false;
       }
-      const th3 = document.createElement('th'); th3.textContent = 'Jumbledness'; hrow.appendChild(th3);
-      const tbody = table.createTBody();
-      for (const section of sections) {
-        if (section.rows.length === 0) continue;
-        addSectionHeader(tbody, section.title, colspan);
-        for (const row of section.rows) {
-          const tr = tbody.insertRow();
-          tr.insertCell().textContent = row.scramble;
-          if (hasDetail) tr.insertCell().textContent = row.detail || '';
-          tr.insertCell().textContent = jumbledness(row.scramble, word);
-        }
-        addCountRow(tbody, section.rows.length, colspan);
-      }
-      makeSortable(table, [hasDetail ? 2 : 1]); // Jumbledness col descending by default
     });
-  });
 
-  // ── Subword mode ──────────────────────────────────────────────────────────
-  document.getElementById('sw-run').addEventListener('click', () => {
-    const input = document.getElementById('sw-input');
-    const subword = input.value.trim().toUpperCase();
-    if (!subword || subword.length < 3 || subword.length > 8) {
-      input.style.borderColor = '#e94560';
-      input.title = 'Please enter between 3 and 8 letters';
-      document.getElementById('sw-results').innerHTML =
-        '<div class="empty-msg">Please enter between 3 and 8 letters.</div>';
-      return;
-    }
-    input.style.borderColor = '';
-    input.title = '';
-    const restrictions = getChecked('sw-restrictions');
-    const minJumb = parseInt(document.getElementById('sw-jumb').value);
-    const allowedDifficulties = new Set(getChecked('sw-difficulty').map(Number));
-    const DIFF_LABEL = { 1: '🟩⬜⬜⬜', 2: '🟨🟨⬜⬜', 3: '🟧🟧🟧⬜', 4: '🟥🟥🟥🟥' };
-    const { twoWords, other } = runSubwordMode(subword, restrictions);
-    const filterHits = hits => hits.filter(
-      ({ scramble, solution, difficulty }) =>
-        parseInt(jumbledness(scramble, solution)) >= minJumb &&
-        allowedDifficulties.has(difficulty)
-    );
-    const filteredTwoWords = filterHits(twoWords);
-    const filteredOther = filterHits(other);
-
-    if (filteredTwoWords.length === 0 && filteredOther.length === 0) {
-      document.getElementById('sw-results').innerHTML =
-        '<div class="empty-msg">No results found.</div>';
-      return;
+    // ── Render helpers ────────────────────────────────────────────────────────
+    function renderTable(containerId, buildFn) {
+      const el = document.getElementById(containerId);
+      const table = document.createElement('table');
+      buildFn(table);
+      el.innerHTML = '';
+      el.appendChild(table);
     }
 
-    renderTable('sw-results', table => {
+    function addSectionHeader(tbody, text, colspan) {
+      const tr = document.createElement('tr');
+      tr.className = 'section-header';
+      const td = document.createElement('td');
+      td.colSpan = colspan;
+      td.textContent = text;
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+
+    function addCountRow(tbody, count, colspan) {
+      const tr = document.createElement('tr');
+      tr.className = 'count-row';
+      const td = document.createElement('td');
+      td.colSpan = colspan;
+      td.textContent = `${count} result${count !== 1 ? 's' : ''}`;
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+
+    // ── Sortable table helper ─────────────────────────────────────────────────
+    function makeSortable(table, defaultDescCols = []) {
+      const headers = [...table.querySelectorAll('th')];
+      const sortState = {};
+      headers.forEach((th, colIdx) => {
+        th.classList.add('sortable');
+        sortState[colIdx] = null;
+        th.addEventListener('click', () => {
+          const tbody = table.tBodies[0];
+          const isDesc = defaultDescCols.includes(colIdx)
+            ? sortState[colIdx] !== 'desc'
+            : sortState[colIdx] === 'asc';
+          // Group rows into sections, preserving header/count rows in place
+          const allRows = [...tbody.rows];
+          const sections = [];
+          let current = null;
+          for (const r of allRows) {
+            if (r.classList.contains('section-header')) {
+              current = { header: r, data: [], count: null };
+              sections.push(current);
+            } else if (r.classList.contains('count-row')) {
+              if (current) current.count = r;
+            } else {
+              if (!current) { current = { header: null, data: [], count: null }; sections.push(current); }
+              current.data.push(r);
+            }
+          }
+          // Sort data rows within each section
+          for (const sec of sections) {
+            sec.data.sort((a, b) => {
+              const ac = a.cells[colIdx];
+              const bc = b.cells[colIdx];
+              const avRaw = ac?.dataset.rank ?? ac?.textContent.trim() ?? '';
+              const bvRaw = bc?.dataset.rank ?? bc?.textContent.trim() ?? '';
+              // 'not found' / empty sorts after Z (sentinel \uffff)
+              const av = (avRaw === 'not found' || avRaw === '') ? '\uffff' : avRaw;
+              const bv = (bvRaw === 'not found' || bvRaw === '') ? '\uffff' : bvRaw;
+              const an = parseFloat(av);
+              const bn = parseFloat(bv);
+              const cmp = isNaN(an) || isNaN(bn) ? av.localeCompare(bv) : an - bn;
+              return isDesc ? -cmp : cmp;
+            });
+          }
+          // Re-append in order: header, data rows, count
+          for (const sec of sections) {
+            if (sec.header) tbody.appendChild(sec.header);
+            sec.data.forEach(r => tbody.appendChild(r));
+            if (sec.count) tbody.appendChild(sec.count);
+          }
+          headers.forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+          th.classList.add(isDesc ? 'sort-desc' : 'sort-asc');
+          sortState[colIdx] = isDesc ? 'desc' : 'asc';
+        });
+      });
+    }
+
+    // ── Solution mode ─────────────────────────────────────────────────────────
+    document.getElementById('sol-run').addEventListener('click', () => {
+      const word = document.getElementById('sol-input').value.trim().toUpperCase();
+      if (!word || word.length !== 9) {
+        document.getElementById('sol-results').innerHTML =
+          '<div class="empty-msg">Please enter exactly 9 letters.</div>';
+        return;
+      }
+      const warningEl = document.getElementById('sol-warning');
+      if (!isConundrum(word)) {
+        warningEl.style.display = 'flex';
+        warningEl.querySelector('span').textContent = `${word} is not a valid conundrum!`;
+      } else {
+        warningEl.style.display = 'none';
+      }
+      const styles = getChecked('sol-styles');
+      const restrictions = getChecked('sol-restrictions');
+      const sections = runSolutionMode(word, styles, restrictions);
+      const minJumb = parseInt(document.getElementById('sol-jumb').value);
+      for (const section of sections) {
+        section.rows = section.rows.filter(row => parseInt(jumbledness(row.scramble, word)) >= minJumb);
+      }
+      const total = sections.reduce((s, sec) => s + sec.rows.length, 0);
+
+      if (total === 0) {
+        document.getElementById('sol-results').innerHTML =
+          '<div class="empty-msg">No results found.</div>';
+        return;
+      }
+
+      renderTable('sol-results', table => {
+        const hasDetail = sections.some(s => s.rows.some(r => r.detail));
+        const colspan = hasDetail ? 3 : 2;
+        const thead = table.createTHead();
+        const hrow = thead.insertRow();
+        const th1 = document.createElement('th'); th1.textContent = 'Scramble'; hrow.appendChild(th1);
+        if (hasDetail) {
+          const th2 = document.createElement('th'); th2.textContent = 'Detail'; hrow.appendChild(th2);
+        }
+        const th3 = document.createElement('th'); th3.textContent = 'Jumbledness'; hrow.appendChild(th3);
+        const tbody = table.createTBody();
+        for (const section of sections) {
+          if (section.rows.length === 0) continue;
+          addSectionHeader(tbody, section.title, colspan);
+          for (const row of section.rows) {
+            const tr = tbody.insertRow();
+            tr.insertCell().textContent = row.scramble;
+            if (hasDetail) tr.insertCell().textContent = row.detail || '';
+            tr.insertCell().textContent = jumbledness(row.scramble, word);
+          }
+          addCountRow(tbody, section.rows.length, colspan);
+        }
+        makeSortable(table, [hasDetail ? 2 : 1]); // Jumbledness col descending by default
+      });
+    });
+
+    // ── Subword mode ──────────────────────────────────────────────────────────
+    document.getElementById('sw-run').addEventListener('click', () => {
+      const input = document.getElementById('sw-input');
+      const subword = input.value.trim().toUpperCase();
+      if (!subword || subword.length < 3 || subword.length > 8) {
+        input.style.borderColor = '#e94560';
+        input.title = 'Please enter between 3 and 8 letters';
+        document.getElementById('sw-results').innerHTML =
+          '<div class="empty-msg">Please enter between 3 and 8 letters.</div>';
+        return;
+      }
+      input.style.borderColor = '';
+      input.title = '';
+      const restrictions = getChecked('sw-restrictions');
+      const minJumb = parseInt(document.getElementById('sw-jumb').value);
+      const allowedDifficulties = new Set(getChecked('sw-difficulty').map(Number));
+      const DIFF_LABEL = { 1: '🟩⬜⬜⬜', 2: '🟨🟨⬜⬜', 3: '🟧🟧🟧⬜', 4: '🟥🟥🟥🟥' };
+      const { twoWords, other } = runSubwordMode(subword, restrictions);
+      const filterHits = hits => hits.filter(
+        ({ scramble, solution, difficulty }) =>
+          parseInt(jumbledness(scramble, solution)) >= minJumb &&
+          allowedDifficulties.has(difficulty)
+      );
+      const filteredTwoWords = filterHits(twoWords);
+      const filteredOther = filterHits(other);
+
+      if (filteredTwoWords.length === 0 && filteredOther.length === 0) {
+        document.getElementById('sw-results').innerHTML =
+          '<div class="empty-msg">No results found.</div>';
+        return;
+      }
+
+      renderTable('sw-results', table => {
+        const thead = table.createTHead();
+        const hrow = thead.insertRow();
+        ['Scramble', 'Solution', 'Difficulty', 'Jumbledness'].forEach(t => {
+          const th = document.createElement('th'); th.textContent = t; hrow.appendChild(th);
+        });
+        const tbody = table.createTBody();
+
+        const addSection = (label, hits) => {
+          if (hits.length === 0) return;
+          const secRow = tbody.insertRow();
+          secRow.className = 'section-header';
+          const secCell = secRow.insertCell();
+          secCell.colSpan = 4;
+          secCell.textContent = label;
+          for (const { scramble, solution, difficulty } of hits) {
+            const tr = tbody.insertRow();
+            tr.insertCell().textContent = scramble;
+            tr.insertCell().textContent = solution;
+            const diffCell = tr.insertCell();
+            diffCell.textContent = DIFF_LABEL[difficulty] || '';
+            diffCell.dataset.rank = difficulty;
+            tr.insertCell().textContent = jumbledness(scramble, solution);
+          }
+        };
+
+        addSection('Two Words', filteredTwoWords);
+        addSection('Other', filteredOther);
+
+        addCountRow(tbody, filteredTwoWords.length + filteredOther.length, 4);
+        makeSortable(table, [3]); // Jumbledness col (index 3) descending by default
+      });
+    });
+
+    // ── Batch mode ────────────────────────────────────────────────────────────
+    let batchCancelled = false;
+
+    document.getElementById('batch-cancel').addEventListener('click', () => {
+      batchCancelled = true;
+    });
+
+    document.getElementById('batch-run').addEventListener('click', async () => {
+      const input = document.getElementById('batch-n');
+      if (!input.value || parseInt(input.value) < 1 || parseInt(input.value) > 500) {
+        input.style.borderColor = '#e94560';
+        input.title = 'Please enter a number between 1 and 500';
+        return;
+      }
+      input.style.borderColor = '';
+      input.title = '';
+      const n = Math.min(500, Math.max(1, parseInt(input.value)));
+      const preferredStyles = getBatchStyles('preferred');
+      const fallbackStyles = getBatchStyles('fallback');
+      const obscureMode = document.querySelector('input[name="batch-obscure"]:checked').value;
+      const avoidProfanity = document.getElementById('batch-no-profanity').checked;
+      const minJumb = parseInt(document.getElementById('batch-jumb').value);
+      const allowedDifficulties = new Set(getChecked('batch-difficulty').map(Number));
+      const DIFF_LABEL = { 1: '🟩⬜⬜⬜', 2: '🟨🟨⬜⬜', 3: '🟧🟧🟧⬜', 4: '🟥🟥🟥🟥' };
+      const profRestr = avoidProfanity ? ['no_profanity'] : [];
+      const noObscure = ['no_obscure_subwords', ...profRestr];
+      const withObscure = [...profRestr];
+      function getCandidates(w, styles, restr) {
+        return runSolutionMode(w, styles, restr)
+          .flatMap(s => s.rows)
+          .filter(row => parseInt(jumbledness(row.scramble, w)) >= minJumb);
+      }
+
+      // Filter conundrums by allowed difficulty, then sample n at random
+      const pool = getConundrums(avoidProfanity).filter(w => allowedDifficulties.has(conundrumDifficulty(w)));
+      const sample = [];
+      const poolCopy = [...pool];
+      for (let i = 0; i < n && poolCopy.length > 0; i++) {
+        const idx = Math.floor(Math.random() * poolCopy.length);
+        sample.push(poolCopy.splice(idx, 1)[0]);
+      }
+
+      if (sample.length === 0) {
+        document.getElementById('batch-results').innerHTML =
+          '<div class="empty-msg">No conundrums match the selected difficulty filters.</div>';
+        return;
+      }
+
+      // Lock UI
+      batchCancelled = false;
+      document.getElementById('ui-overlay').style.display = 'block';
+      document.getElementById('batch-run').style.display = 'none';
+      document.getElementById('batch-cancel').style.display = '';
+      document.getElementById('batch-progress').style.display = 'block';
+      document.getElementById('batch-complete').style.display = 'none';
+      document.getElementById('batch-copy-wrap').style.display = 'none';
+      document.getElementById('batch-results').innerHTML = '';
+
+      const bar = document.getElementById('batch-bar');
+      const label = document.getElementById('batch-progress-label');
+
+      // Build table skeleton
+      const table = document.createElement('table');
       const thead = table.createTHead();
       const hrow = thead.insertRow();
       ['Scramble', 'Solution', 'Difficulty', 'Jumbledness'].forEach(t => {
         const th = document.createElement('th'); th.textContent = t; hrow.appendChild(th);
       });
       const tbody = table.createTBody();
+      document.getElementById('batch-results').appendChild(table);
 
-      const addSection = (label, hits) => {
-        if (hits.length === 0) return;
-        const secRow = tbody.insertRow();
-        secRow.className = 'section-header';
-        const secCell = secRow.insertCell();
-        secCell.colSpan = 4;
-        secCell.textContent = label;
-        for (const { scramble, solution, difficulty } of hits) {
-          const tr = tbody.insertRow();
-          tr.insertCell().textContent = scramble;
-          tr.insertCell().textContent = solution;
-          const diffCell = tr.insertCell();
-          diffCell.textContent = DIFF_LABEL[difficulty] || '';
-          diffCell.dataset.rank = difficulty;
-          tr.insertCell().textContent = jumbledness(scramble, solution);
-        }
-      };
+      const rows = [];
+      for (let i = 0; i < sample.length; i++) {
+        if (batchCancelled) break;
 
-      addSection('Two Words', filteredTwoWords);
-      addSection('Other', filteredOther);
-
-      addCountRow(tbody, filteredTwoWords.length + filteredOther.length, 4);
-      makeSortable(table, [3]); // Jumbledness col (index 3) descending by default
-    });
-  });
-
-  // ── Batch mode ────────────────────────────────────────────────────────────
-  let batchCancelled = false;
-
-  document.getElementById('batch-cancel').addEventListener('click', () => {
-    batchCancelled = true;
-  });
-
-  document.getElementById('batch-run').addEventListener('click', async () => {
-    const input = document.getElementById('batch-n');
-    if (!input.value || parseInt(input.value) < 1 || parseInt(input.value) > 500) {
-      input.style.borderColor = '#e94560';
-      input.title = 'Please enter a number between 1 and 500';
-      return;
-    }
-    input.style.borderColor = '';
-    input.title = '';
-    const n = Math.min(500, Math.max(1, parseInt(input.value)));
-    const preferredStyles = getBatchStyles('preferred');
-    const fallbackStyles = getBatchStyles('fallback');
-    const obscureMode = document.querySelector('input[name="batch-obscure"]:checked').value;
-    const avoidProfanity = document.getElementById('batch-no-profanity').checked;
-    const minJumb = parseInt(document.getElementById('batch-jumb').value);
-    const allowedDifficulties = new Set(getChecked('batch-difficulty').map(Number));
-    const DIFF_LABEL = { 1: '🟩⬜⬜⬜', 2: '🟨🟨⬜⬜', 3: '🟧🟧🟧⬜', 4: '🟥🟥🟥🟥' };
-    const profRestr = avoidProfanity ? ['no_profanity'] : [];
-    const noObscure = ['no_obscure_subwords', ...profRestr];
-    const withObscure = [...profRestr];
-    function getCandidates(w, styles, restr) {
-      return runSolutionMode(w, styles, restr)
-        .flatMap(s => s.rows)
-        .filter(row => parseInt(jumbledness(row.scramble, w)) >= minJumb);
-    }
-
-    // Filter conundrums by allowed difficulty, then sample n at random
-    const pool = getConundrums(avoidProfanity).filter(w => allowedDifficulties.has(conundrumDifficulty(w)));
-    const sample = [];
-    const poolCopy = [...pool];
-    for (let i = 0; i < n && poolCopy.length > 0; i++) {
-      const idx = Math.floor(Math.random() * poolCopy.length);
-      sample.push(poolCopy.splice(idx, 1)[0]);
-    }
-
-    if (sample.length === 0) {
-      document.getElementById('batch-results').innerHTML =
-        '<div class="empty-msg">No conundrums match the selected difficulty filters.</div>';
-      return;
-    }
-
-    // Lock UI
-    batchCancelled = false;
-    document.getElementById('ui-overlay').style.display = 'block';
-    document.getElementById('batch-run').style.display = 'none';
-    document.getElementById('batch-cancel').style.display = '';
-    document.getElementById('batch-progress').style.display = 'block';
-    document.getElementById('batch-complete').style.display = 'none';
-    document.getElementById('batch-copy-wrap').style.display = 'none';
-    document.getElementById('batch-results').innerHTML = '';
-
-    const bar = document.getElementById('batch-bar');
-    const label = document.getElementById('batch-progress-label');
-
-    // Build table skeleton
-    const table = document.createElement('table');
-    const thead = table.createTHead();
-    const hrow = thead.insertRow();
-    ['Scramble', 'Solution', 'Difficulty', 'Jumbledness'].forEach(t => {
-      const th = document.createElement('th'); th.textContent = t; hrow.appendChild(th);
-    });
-    const tbody = table.createTBody();
-    document.getElementById('batch-results').appendChild(table);
-
-    const rows = [];
-    for (let i = 0; i < sample.length; i++) {
-      if (batchCancelled) break;
-
-      const word = sample[i];
-      let candidates = [];
-      if (obscureMode === 'yes') {
-        // Obscure always allowed
-        candidates = getCandidates(word, preferredStyles, withObscure);
-        if (candidates.length === 0 && fallbackStyles.length > 0)
-          candidates = getCandidates(word, [...preferredStyles, ...fallbackStyles], withObscure);
-      } else if (obscureMode === 'never') {
-        // Obscure never allowed
-        candidates = getCandidates(word, preferredStyles, noObscure);
-        if (candidates.length === 0 && fallbackStyles.length > 0)
-          candidates = getCandidates(word, [...preferredStyles, ...fallbackStyles], noObscure);
-      } else {
-        // Only if required: expand obscure before expanding styles
-        candidates = getCandidates(word, preferredStyles, noObscure);
-        if (candidates.length === 0)
+        const word = sample[i];
+        let candidates = [];
+        if (obscureMode === 'yes') {
+          // Obscure always allowed
           candidates = getCandidates(word, preferredStyles, withObscure);
-        if (candidates.length === 0 && fallbackStyles.length > 0)
-          candidates = getCandidates(word, [...preferredStyles, ...fallbackStyles], withObscure);
-      }
-      const pick = candidates.length > 0
-        ? candidates[Math.floor(Math.random() * candidates.length)]
-        : null;
-      // Fallback: try 10 random scrambles, pick highest jumbledness
-      let usedFallback = false;
-      let finalPick = pick;
-      if (!pick) {
-        let best = null, bestScore = -1;
-        for (let t = 0; t < 10; t++) {
-          const s = randomScramble(word);
-          const score = parseInt(jumbledness(s, word));
-          if (score > bestScore) { bestScore = score; best = s; }
+          if (candidates.length === 0 && fallbackStyles.length > 0)
+            candidates = getCandidates(word, [...preferredStyles, ...fallbackStyles], withObscure);
+        } else if (obscureMode === 'never') {
+          // Obscure never allowed
+          candidates = getCandidates(word, preferredStyles, noObscure);
+          if (candidates.length === 0 && fallbackStyles.length > 0)
+            candidates = getCandidates(word, [...preferredStyles, ...fallbackStyles], noObscure);
+        } else {
+          // Only if required: expand obscure before expanding styles
+          candidates = getCandidates(word, preferredStyles, noObscure);
+          if (candidates.length === 0)
+            candidates = getCandidates(word, preferredStyles, withObscure);
+          if (candidates.length === 0 && fallbackStyles.length > 0)
+            candidates = getCandidates(word, [...preferredStyles, ...fallbackStyles], withObscure);
         }
-        if (best) { finalPick = { scramble: best }; usedFallback = true; }
+        const pick = candidates.length > 0
+          ? candidates[Math.floor(Math.random() * candidates.length)]
+          : null;
+        // Fallback: try 10 random scrambles, pick highest jumbledness
+        let usedFallback = false;
+        let finalPick = pick;
+        if (!pick) {
+          let best = null, bestScore = -1;
+          for (let t = 0; t < 10; t++) {
+            const s = randomScramble(word);
+            const score = parseInt(jumbledness(s, word));
+            if (score > bestScore) { bestScore = score; best = s; }
+          }
+          if (best) { finalPick = { scramble: best }; usedFallback = true; }
+        }
+        const rowData = {
+          word,
+          scramble: finalPick ? finalPick.scramble : null,
+          jumb: finalPick ? jumbledness(finalPick.scramble, word) : null,
+          fallback: usedFallback
+        };
+        rows.push(rowData);
+
+        // Append row to live table
+        const tr = tbody.insertRow();
+        if (rowData.fallback) tr.style.background = '#fde8e8';
+        const scrCell = tr.insertCell();
+        if (rowData.scramble) {
+          scrCell.textContent = rowData.scramble;
+        } else {
+          scrCell.textContent = 'not found';
+          scrCell.style.color = '#aaa';
+          scrCell.style.fontStyle = 'italic';
+        }
+        tr.insertCell().textContent = word;
+        const diff = conundrumDifficulty(word);
+        const diffCell = tr.insertCell();
+        diffCell.textContent = DIFF_LABEL[diff] || '';
+        diffCell.dataset.rank = diff;
+        tr.insertCell().textContent = rowData.jumb || '';
+
+        // Update progress
+        const pct = Math.round(((i + 1) / sample.length) * 100);
+        bar.style.width = pct + '%';
+        label.textContent = `${i + 1} / ${sample.length}`;
+
+        // Yield to browser every item
+        await new Promise(r => setTimeout(r, 0));
       }
-      const rowData = {
-        word,
-        scramble: finalPick ? finalPick.scramble : null,
-        jumb: finalPick ? jumbledness(finalPick.scramble, word) : null,
-        fallback: usedFallback
-      };
-      rows.push(rowData);
 
-      // Append row to live table
-      const tr = tbody.insertRow();
-      if (rowData.fallback) tr.style.background = '#fde8e8';
-      const scrCell = tr.insertCell();
-      if (rowData.scramble) {
-        scrCell.textContent = rowData.scramble;
-      } else {
-        scrCell.textContent = 'not found';
-        scrCell.style.color = '#aaa';
-        scrCell.style.fontStyle = 'italic';
-      }
-      tr.insertCell().textContent = word;
-      const diff = conundrumDifficulty(word);
-      const diffCell = tr.insertCell();
-      diffCell.textContent = DIFF_LABEL[diff] || '';
-      diffCell.dataset.rank = diff;
-      tr.insertCell().textContent = rowData.jumb || '';
+      addCountRow(tbody, rows.length, 4);
+      makeSortable(table, [3]);
 
-      // Update progress
-      const pct = Math.round(((i + 1) / sample.length) * 100);
-      bar.style.width = pct + '%';
-      label.textContent = `${i + 1} / ${sample.length}`;
-
-      // Yield to browser every item
-      await new Promise(r => setTimeout(r, 0));
-    }
-
-    addCountRow(tbody, rows.length, 4);
-    makeSortable(table, [3]);
-
-    // Unlock UI
-    document.getElementById('ui-overlay').style.display = 'none';
-    document.getElementById('batch-run').style.display = '';
-    document.getElementById('batch-cancel').style.display = 'none';
-    document.getElementById('batch-progress').style.display = 'none';
-    if (!batchCancelled) {
-      const bc = document.getElementById('batch-complete');
-      bc.style.opacity = '1';
-      bc.style.display = '';
-      setTimeout(() => { bc.style.opacity = '0'; }, 2000);
-      setTimeout(() => { bc.style.display = 'none'; bc.style.opacity = '1'; }, 4000);
-      document.getElementById('batch-copy-wrap').style.display = 'flex';
-    }
-  });
-
-  document.getElementById('batch-export').addEventListener('click', () => {
-    const rows = document.querySelectorAll('#batch-results tbody tr');
-    const lines = ['Scramble,Solution'];
-    rows.forEach(row => {
-      const cells = row.querySelectorAll('td');
-      if (cells.length >= 2) {
-        const scramble = cells[0].textContent.trim();
-        const solution = cells[1].textContent.trim();
-        if (scramble && solution) lines.push('"' + scramble + '","' + solution + '"');
-      }
-    });
-    const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'scrambled_eggs.csv';
-    a.click();
-    URL.revokeObjectURL(url);
-  });
-
-  // ── Copy to clipboard ──────────────────────────────────────────────────────
-  document.getElementById('batch-copy').addEventListener('click', () => {
-    const rows = document.querySelectorAll('#batch-results tbody tr');
-    const lines = [];
-    rows.forEach(row => {
-      const cells = row.querySelectorAll('td');
-      if (cells.length >= 2) {
-        const scramble = cells[0].textContent.trim();
-        const solution = cells[1].textContent.trim();
-        if (scramble && solution) lines.push(scramble + '\t' + solution);
+      // Unlock UI
+      document.getElementById('ui-overlay').style.display = 'none';
+      document.getElementById('batch-run').style.display = '';
+      document.getElementById('batch-cancel').style.display = 'none';
+      document.getElementById('batch-progress').style.display = 'none';
+      if (!batchCancelled) {
+        const bc = document.getElementById('batch-complete');
+        bc.style.opacity = '1';
+        bc.style.display = '';
+        setTimeout(() => { bc.style.opacity = '0'; }, 2000);
+        setTimeout(() => { bc.style.display = 'none'; bc.style.opacity = '1'; }, 4000);
+        document.getElementById('batch-copy-wrap').style.display = 'flex';
       }
     });
-    navigator.clipboard.writeText(lines.join('\n')).then(() => {
-      const btn = document.getElementById('batch-copy');
-      const orig = btn.textContent;
-      btn.textContent = 'Copied!';
-      setTimeout(() => { btn.textContent = orig; }, 1500);
-    });
-  });
 
-  // ── Enter key support ─────────────────────────────────────────────────────
-  document.getElementById('sol-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('sol-run').click();
-  });
-  document.getElementById('sw-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('sw-run').click();
-  });
-</script>
+    document.getElementById('batch-export').addEventListener('click', () => {
+      const rows = document.querySelectorAll('#batch-results tbody tr');
+      const lines = ['Scramble,Solution'];
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length >= 2) {
+          const scramble = cells[0].textContent.trim();
+          const solution = cells[1].textContent.trim();
+          if (scramble && solution) lines.push('"' + scramble + '","' + solution + '"');
+        }
+      });
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'scrambled_eggs.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // ── Copy to clipboard ──────────────────────────────────────────────────────
+    document.getElementById('batch-copy').addEventListener('click', () => {
+      const rows = document.querySelectorAll('#batch-results tbody tr');
+      const lines = [];
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length >= 2) {
+          const scramble = cells[0].textContent.trim();
+          const solution = cells[1].textContent.trim();
+          if (scramble && solution) lines.push(scramble + '\t' + solution);
+        }
+      });
+      navigator.clipboard.writeText(lines.join('\n')).then(() => {
+        const btn = document.getElementById('batch-copy');
+        const orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = orig; }, 1500);
+      });
+    });
+
+    // ── Enter key support ─────────────────────────────────────────────────────
+    document.getElementById('sol-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('sol-run').click();
+    });
+    document.getElementById('sw-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('sw-run').click();
+    });
+  </script>
 </body>
+
 </html>

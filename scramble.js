@@ -189,7 +189,7 @@ export function findPairs(word, lexicon) {
   return results;
 }
 
-const THREE_WORD_PARTITIONS = [[2, 3, 4], [3, 3, 3]];
+const THREE_WORD_PARTITIONS = [[3, 3, 3]];
 
 export function findTriples(word, lexicon) {
   const target = counter(word);
@@ -326,13 +326,6 @@ export function runSolutionMode(word, styles, restrictions) {
     sections.push({ title: 'Two-word combinations', rows: strings.map(s => ({ scramble: s })) });
   }
 
-  if (styles.includes('three_words')) {
-    const triples = findTriples(word, lexicon);
-    let strings = triples.flatMap(combo => comboToStrings(combo));
-    strings = applyRestrictions([...new Set(strings)].sort(), word, restrictions);
-    sections.push({ title: 'Three-word combinations', rows: strings.map(s => ({ scramble: s })) });
-  }
-
   if (styles.includes('substitute_letter')) {
     let subs = findSubstituteLetter(word, lexicon);
     subs = subs.filter(r => applyRestrictions([r.scramble], word, restrictions).length > 0);
@@ -358,6 +351,13 @@ export function runSolutionMode(word, styles, restrictions) {
       title: 'Double stem',
       rows: ds.map(r => ({ scramble: r.scramble, detail: `stem: ${r.stem}, +${r.extra}` }))
     });
+  }
+
+  if (styles.includes('three_words')) {
+    const triples = findTriples(word, lexicon);
+    let strings = triples.flatMap(combo => comboToStrings(combo));
+    strings = applyRestrictions([...new Set(strings)].sort(), word, restrictions);
+    sections.push({ title: 'Three-word combinations', rows: strings.map(s => ({ scramble: s })) });
   }
 
   return sections;
