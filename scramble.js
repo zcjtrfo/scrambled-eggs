@@ -392,6 +392,9 @@ export function randomScramble(word) {
 }
 
 // ── Subword mode ──────────────────────────────────────────────────────────────
+// Returns { twoWords: [...], other: [...] }
+// twoWords: remaining letters form a word in the lexicon (shown as subword+word or word+subword)
+// other:    no such word exists; scramble shown as subword + remaining letters alphabetised
 export function runSubwordMode(subword, restrictions) {
   subword = subword.toUpperCase();
   const subCounter = counter(subword);
@@ -401,8 +404,10 @@ export function runSubwordMode(subword, restrictions) {
     ? (noProf ? LEXICON_SET_CLEAN      : LEXICON_SET)
     : (noProf ? FULL_LEXICON_SET_CLEAN : FULL_LEXICON_SET);
   const conundrumList = noProf ? CONUNDRUMS_CLEAN : CONUNDRUMS;
-  const hits = [];
-  const seen = new Set();
+  const twoWords = [];
+  const other = [];
+  const seenTwoWords = new Set();
+  const seenOther = new Set();
 
   for (const w of conundrumList) {
     const wc = counter(w);
@@ -410,22 +415,36 @@ export function runSubwordMode(subword, restrictions) {
     const remaining = counterSubtract(wc, subCounter);
     const remainingLetters = counterElements(remaining);
 
+    let foundTwoWord = false;
     for (const perm of permutations(remainingLetters)) {
       const candidate = perm.join('');
       if (lexSet.has(candidate)) {
         for (const scramble of [subword + candidate, candidate + subword]) {
           if (applyRestrictions([scramble], w, restrictions).length > 0) {
             const key = scramble + '|' + w;
-            if (!seen.has(key)) {
-              seen.add(key);
-              hits.push({ scramble, solution: w, difficulty: CONUNDRUM_DIFFICULTY.get(w) || 0 });
+            if (!seenTwoWords.has(key)) {
+              seenTwoWords.add(key);
+              twoWords.push({ scramble, solution: w, difficulty: CONUNDRUM_DIFFICULTY.get(w) || 0 });
             }
+            foundTwoWord = true;
           }
+        }
+      }
+    }
+
+    if (!foundTwoWord) {
+      const sortedRemaining = remainingLetters.slice().sort().join('');
+      const scramble = subword + sortedRemaining;
+      if (applyRestrictions([scramble], w, restrictions).length > 0) {
+        if (!seenOther.has(w)) {
+          seenOther.add(w);
+          other.push({ scramble, solution: w, difficulty: CONUNDRUM_DIFFICULTY.get(w) || 0 });
         }
       }
     }
   }
 
-  hits.sort((a, b) => a.scramble.localeCompare(b.scramble));
-  return hits;
+  twoWords.sort((a, b) => a.scramble.localeCompare(b.scramble));
+  other.sort((a, b) => a.scramble.localeCompare(b.scramble));
+  return { twoWords, other };
 }

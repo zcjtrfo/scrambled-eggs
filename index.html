@@ -698,13 +698,16 @@
     const minJumb = parseInt(document.getElementById('sw-jumb').value);
     const allowedDifficulties = new Set(getChecked('sw-difficulty').map(Number));
     const DIFF_LABEL = { 1: '🟩⬜⬜⬜', 2: '🟨🟨⬜⬜', 3: '🟧🟧🟧⬜', 4: '🟥🟥🟥🟥' };
-    const hits = runSubwordMode(subword, restrictions).filter(
+    const { twoWords, other } = runSubwordMode(subword, restrictions);
+    const filterHits = hits => hits.filter(
       ({ scramble, solution, difficulty }) =>
         parseInt(jumbledness(scramble, solution)) >= minJumb &&
         allowedDifficulties.has(difficulty)
     );
+    const filteredTwoWords = filterHits(twoWords);
+    const filteredOther = filterHits(other);
 
-    if (hits.length === 0) {
+    if (filteredTwoWords.length === 0 && filteredOther.length === 0) {
       document.getElementById('sw-results').innerHTML =
         '<div class="empty-msg">No results found.</div>';
       return;
@@ -717,16 +720,29 @@
         const th = document.createElement('th'); th.textContent = t; hrow.appendChild(th);
       });
       const tbody = table.createTBody();
-      for (const { scramble, solution, difficulty } of hits) {
-        const tr = tbody.insertRow();
-        tr.insertCell().textContent = scramble;
-        tr.insertCell().textContent = solution;
-        const diffCell = tr.insertCell();
-        diffCell.textContent = DIFF_LABEL[difficulty] || '';
-        diffCell.dataset.rank = difficulty;
-        tr.insertCell().textContent = jumbledness(scramble, solution);
-      }
-      addCountRow(tbody, hits.length, 4);
+
+      const addSection = (label, hits) => {
+        if (hits.length === 0) return;
+        const secRow = tbody.insertRow();
+        secRow.className = 'section-header';
+        const secCell = secRow.insertCell();
+        secCell.colSpan = 4;
+        secCell.textContent = label;
+        for (const { scramble, solution, difficulty } of hits) {
+          const tr = tbody.insertRow();
+          tr.insertCell().textContent = scramble;
+          tr.insertCell().textContent = solution;
+          const diffCell = tr.insertCell();
+          diffCell.textContent = DIFF_LABEL[difficulty] || '';
+          diffCell.dataset.rank = difficulty;
+          tr.insertCell().textContent = jumbledness(scramble, solution);
+        }
+      };
+
+      addSection('Two Words', filteredTwoWords);
+      addSection('Other', filteredOther);
+
+      addCountRow(tbody, filteredTwoWords.length + filteredOther.length, 4);
       makeSortable(table, [3]); // Jumbledness col (index 3) descending by default
     });
   });
