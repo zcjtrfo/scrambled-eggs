@@ -462,6 +462,49 @@
     #help-close:hover {
       color: #111;
     }
+
+    @media (max-width: 560px) {
+      html, body { overflow-x: hidden; }
+
+      header { padding: 0.9rem 1rem; }
+      #status-bar { padding: 0.3rem 1rem; }
+
+      /* Tabs: share available width, wrap text if needed */
+      .tabs { padding: 0 0.25rem; }
+      .tab-btn {
+        flex: 1;
+        min-width: 0;
+        padding: 0.65rem 0.3rem;
+        font-size: 0.78rem;
+        white-space: normal;
+        text-align: center;
+        line-height: 1.25;
+      }
+
+      /* Reduce content/panel padding */
+      .tab-content { padding: 1rem 0.75rem; }
+      .panel { padding: 1rem 0.75rem; }
+
+      /* Styles table: abbreviate column headers */
+      .style-table { font-size: 0.82rem; }
+      .style-table th,
+      .style-table td { padding: 0.3rem 0.3rem; }
+      .style-table th:nth-child(2),
+      .style-table th:nth-child(3),
+      .style-table th:nth-child(4) { font-size: 0; }
+      .style-table th:nth-child(2)::after,
+      .style-table th:nth-child(3)::after,
+      .style-table th:nth-child(4)::after {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #5a7a9a;
+        font-weight: 500;
+      }
+      .style-table th:nth-child(2)::after { content: 'Preferred'; }
+      .style-table th:nth-child(3)::after { content: 'If req.'; }
+      .style-table th:nth-child(4)::after { content: 'Never'; }
+    }
   </style>
 </head>
 
